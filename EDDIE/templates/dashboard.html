@@ -15,7 +15,14 @@
         </div>
         <div class="logo-text">EDDI</div>
         <div class="icon-container">
-            <span class="material-icons">account_circle</span>
+            <div class="account-menu" id="accountMenuWrapper" style="position:relative;">
+                <button id="accountBtn" class="account-btn" aria-haspopup="true" aria-expanded="false" title="Cuenta">
+                    <span class="material-icons" aria-hidden="true">account_circle</span>
+                </button>
+                <div id="accountDropdown" class="account-dropdown" hidden>
+                    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -54,6 +61,40 @@
         menuBtn.addEventListener('click', function() {
             sidebar.classList.toggle('show');
         });
+
+        (function(){
+            const wrapper = document.getElementById('accountMenuWrapper');
+            if (!wrapper) return;
+            const btn = document.getElementById('accountBtn');
+            const dropdown = document.getElementById('accountDropdown');
+
+            btn.addEventListener('click', function(e){
+                const isOpen = !dropdown.hasAttribute('hidden');
+                if (isOpen) {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                } else {
+                    dropdown.removeAttribute('hidden');
+                    btn.setAttribute('aria-expanded','true');
+                }
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', function(e){
+                if (!wrapper.contains(e.target)) {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                }
+            });
+
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape') {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                }
+            });
+        })();
+        // --- end account dropdown ---
     </script>
 
 </body>
