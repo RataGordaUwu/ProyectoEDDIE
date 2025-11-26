@@ -1,4 +1,4 @@
-/* Reset básico */
+
 * {
     margin: 0;
     padding: 0;
@@ -13,9 +13,9 @@ body {
     min-height: 100vh;
 }
 
-/* Header Azul */
+
 .main-header {
-    background-color: #1a73e8; /* Azul Google */
+    background-color: #1a73e8; 
     color: white;
     height: 60px;
     display: flex;
@@ -36,7 +36,7 @@ body {
     font-size: 28px;
 }
 
-/* Contenido Principal */
+
 .main-content {
     flex: 1;
     display: flex;
@@ -45,7 +45,7 @@ body {
     padding: 20px;
 }
 
-/* Tarjeta Central */
+
 .welcome-card {
     background-color: white;
     width: 100%;
@@ -72,7 +72,7 @@ body {
     margin-bottom: 8px;
 }
 
-/* Footer */
+
 .main-footer {
     padding: 15px 20px;
     display: flex;
@@ -101,60 +101,58 @@ body {
     background: #d5d5d5;
 }
 
-/* --- ESTILOS DEL MENÚ LATERAL (SIDEBAR) --- */
+
 
 .sidebar {
-    display: none; /* Oculto por defecto (Sin animación) */
+    display: none; 
     position: fixed;
-    top: 60px; /* Justo debajo del header (que mide 60px) */
+    top: 60px; 
     left: 0;
-    width: 250px; /* Ancho del menú */
-    height: calc(100vh - 60px); /* Altura completa menos el header */
+    width: 250px; 
+    height: calc(100vh - 60px); 
     background-color: white;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     padding-top: 10px;
     z-index: 1000;
 }
 
-/* Clase que activa JavaScript para mostrar el menú */
+
 .sidebar.show {
-    display: block; /* Aparece de golpe */
+    display: block; 
 }
 
-/* Enlaces del menú */
+
 .sidebar-link {
     display: block;
     padding: 15px 20px;
     text-decoration: none;
     font-size: 16px;
-    color: #5f6368; /* Gris oscuro */
+    color: #5f6368; 
     font-weight: 500;
 }
 
 .sidebar-link:hover {
-    background-color: #f1f3f4; /* Gris muy clarito al pasar el mouse */
+    background-color: #f1f3f4; 
 }
 
-/* Estilo para la opción activa ("Inicio") */
+
 .sidebar-link.active {
-    color: #1a73e8; /* Azul */
-    background-color: #e8f0fe; /* Fondo azul muy claro */
+    color: #1a73e8; 
+    background-color: #e8f0fe; 
 }
 
-/* --- ESTILOS PARA GENERAR DOCUMENTOS --- */
 
-/* Clase para alinear el contenido arriba en vez del centro */
 .main-content.align-top {
-    align-items: flex-start; /* Alinea al top */
-    justify-content: flex-start; /* Alinea a la izquierda */
+    align-items: flex-start; 
+    justify-content: flex-start; 
 }
 
 .docs-container {
     width: 100%;
-    max-width: 900px; /* Un poco más ancho para listas */
-    background-color: transparent; /* Sin fondo blanco de tarjeta */
+    max-width: 900px; 
+    background-color: transparent; 
     padding: 20px 40px;
-    text-align: left; /* Texto a la izquierda */
+    text-align: left; 
 }
 
 .docs-container h2 {
@@ -178,32 +176,32 @@ body {
     margin-bottom: 10px;
 }
 
-/* Espacio vacío donde irán los documentos */
+
 .docs-list-placeholder {
     margin-bottom: 20px;
     min-height: 10px;
 }
 
-/* --- ESTILO FIJO (SIN MOVIMIENTO) --- */
 
-/* Esta clase se usará en páginas con el menú abierto fijo */
+
+
 .main-content-fixed {
-    margin-left: 250px;       /* Deja el espacio exacto del menú */
-    width: calc(100% - 250px); /* El ancho es el resto de la pantalla */
+    margin-left: 250px;       
+    width: calc(100% - 250px); 
     display: flex;
-    flex-direction: column;   /* Mantiene el orden vertical */
-    align-items: center;      /* CENTRA el contenido horizontalmente en el espacio libre */
-    padding-top: 40px;        /* Un poco de aire arriba */
+    flex-direction: column;   
+    align-items: center;      
+    padding-top: 40px;       
 }
 
-/* Ajuste para que el contenedor de texto no se estire demasiado */
+
 .docs-container {
     width: 100%;
-    max-width: 800px;         /* Ancho máximo para que se vea elegante */
-    text-align: left;         /* El texto interno alineado a la izquierda */
+    max-width: 800px;         
+    text-align: left;         
 }
 
-/* ESTILOS PARA LA LISTA DE DOCUMENTOS Y BOTONES */
+
 .docs-list {
     display: flex;
     flex-direction: column;
@@ -228,7 +226,7 @@ body {
     font-weight: 500;
 }
 
-/* Botón azul de descarga */
+
 .btn-download-blue {
     background-color: #1a73e8;
     color: white;
@@ -238,7 +236,7 @@ body {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    text-decoration: none; /* Para que el enlace <a> parezca botón */
+    text-decoration: none; 
     transition: background-color 0.2s;
 }
 
@@ -252,13 +250,13 @@ body {
     cursor: not-allowed;
 }
 
-/* Contenedor de botones para que estén alineados */
+
 .doc-buttons {
     display: flex;
-    gap: 10px; /* Espacio entre los botones */
+    gap: 10px; 
 }
 
-/* Botón PRIMARIO (Previsualizar) - Azul */
+
 .btn-preview {
     background-color: #1a73e8;
     color: white;
@@ -277,11 +275,11 @@ body {
     box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
 
-/* Botón SECUNDARIO (Descargar) - Gris claro/Blanco */
+
 .btn-download {
     background-color: #f1f3f4;
     color: #3c4043;
-    border: 1px solid transparent; /* Sin borde visible o borde suave */
+    border: 1px solid transparent; 
     padding: 8px 16px;
     border-radius: 4px;
     font-size: 14px;
@@ -296,7 +294,7 @@ body {
     color: #202124;
 }
 
-/* Estilos para botones deshabilitados */
+
 .btn-preview.disabled, .btn-download.disabled {
     background-color: #dadce0;
     color: white;

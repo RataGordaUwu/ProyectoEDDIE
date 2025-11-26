@@ -7,18 +7,16 @@ import io
 import os
 from datetime import datetime
 
-# --- ESTILOS COMUNES ---
+
 styles = getSampleStyleSheet()
 style_normal = styles['Normal']
 style_center = ParagraphStyle('Center', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica', fontSize=10)
 style_bold = ParagraphStyle('Bold', parent=styles['Normal'], alignment=TA_LEFT, fontName='Helvetica-Bold', fontSize=10)
 style_justify = ParagraphStyle('Justify', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=14)
 
-# ==========================================
-# 1. CONSTANCIA RECURSOS HUMANOS
-# ==========================================
+
 def generar_constancia_rh(docente, firmante, datos_firma=None):
-    # CORRECCIÓN: Convertimos a diccionario para poder usar .get()
+    
     docente = dict(docente)
     
     buffer = io.BytesIO()
@@ -36,7 +34,7 @@ def generar_constancia_rh(docente, firmante, datos_firma=None):
     story.append(Paragraph("A QUIEN CORRESPONDA:", s_to_whom))
 
     nombre = f"{docente['nombre']} {docente['apellidos']}"
-    # Ahora .get() funcionará correctamente
+    
     rfc = docente.get('rfc') or 'N/A'
     fecha_ingreso = docente.get('fecha_ingreso') or 'N/A'
     
@@ -48,13 +46,13 @@ def generar_constancia_rh(docente, firmante, datos_firma=None):
     story.append(Paragraph(texto2, s_body))
     story.append(Spacer(1, 2*cm))
 
-    # Firma
+    
     story.append(Paragraph("A T E N T A M E N T E", s_firm))
     
     if datos_firma and datos_firma.get('ruta_firma') and os.path.exists(datos_firma['ruta_firma']):
         try:
             img_firma = RLImage(datos_firma['ruta_firma'], width=4*cm, height=2*cm)
-            # El sello es opcional
+            
             if datos_firma.get('ruta_sello') and os.path.exists(datos_firma['ruta_sello']):
                 img_sello = RLImage(datos_firma['ruta_sello'], width=3*cm, height=3*cm)
                 data_tabla = [[Spacer(1,1), img_firma, img_sello]]
@@ -80,9 +78,7 @@ def generar_constancia_rh(docente, firmante, datos_firma=None):
     return buffer
 
 
-# ==========================================
-# 2. CARTA DE EXCLUSIVIDAD
-# ==========================================
+
 def generar_carta_exclusividad(docente):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
@@ -114,9 +110,7 @@ def generar_carta_exclusividad(docente):
     return buffer
 
 
-# ==========================================
-# 3. CONSTANCIA DE DESARROLLO ACADÉMICO
-# ==========================================
+
 def generar_constancia_desarrollo(docente, firmante, datos_firma=None):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
@@ -153,9 +147,7 @@ def generar_constancia_desarrollo(docente, firmante, datos_firma=None):
     return buffer
 
 
-# ==========================================
-# 4. CONSTANCIA DE CVU
-# ==========================================
+
 def generar_constancia_cvu(docente, firmante, datos_firma=None):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
@@ -192,9 +184,7 @@ def generar_constancia_cvu(docente, firmante, datos_firma=None):
     return buffer
 
 
-# ==========================================
-# 5. CONSTANCIA DE GRADO / CÉDULA
-# ==========================================
+
 def generar_constancia_grado(docente, grado_info, firmante, datos_firma=None):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
@@ -241,9 +231,7 @@ def generar_constancia_grado(docente, grado_info, firmante, datos_firma=None):
     return buffer
 
 
-# ==========================================
-# 6. CONSTANCIA DE DISEÑO CURRICULAR
-# ==========================================
+
 def generar_constancia_participacion_planes(docente, participacion, datos_firma=None):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
@@ -288,9 +276,7 @@ def generar_constancia_participacion_planes(docente, participacion, datos_firma=
     return buffer
 
 
-# ==========================================
-# 7. OFICIO DE LICENCIA (SABÁTICO/BECA)
-# ==========================================
+
 def generar_oficio_licencia(docente, licencia, firmante, datos_firma=None):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
@@ -335,14 +321,12 @@ def generar_oficio_licencia(docente, licencia, firmante, datos_firma=None):
     buffer.seek(0)
     return buffer
 
-# ==========================================
-# 8. EVIDENCIA DE GRADO (VALIDACIÓN FIRMABLE)
-# ==========================================
+
 def generar_evidencia_grado_firmable(docente, grado_info):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
     
-    # Estilos
+    
     s_header = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
     s_title = ParagraphStyle('Title', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14, spaceAfter=20)
     s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
@@ -353,15 +337,15 @@ def generar_evidencia_grado_firmable(docente, grado_info):
 
     story = []
     
-    # Encabezado Institucional
+    
     story.append(Paragraph("Instituto Tecnológico de Culiacán<br/>Subdirección Académica<br/>Depto. de Desarrollo Académico", s_header))
     story.append(Spacer(1, 1.5*cm))
     
-    # Título del Documento
+    
     story.append(Paragraph("VALIDACIÓN DE EVIDENCIA DE GRADO ACADÉMICO", s_title))
     story.append(Spacer(1, 1*cm))
 
-    # Cuerpo del documento
+    
     nombre_docente = f"{docente['nombre']} {docente['apellidos']}"
     grado_titulo = grado_info.get('titulo', 'GRADO ACADÉMICO').upper()
     
@@ -371,11 +355,11 @@ def generar_evidencia_grado_firmable(docente, grado_info):
     story.append(Paragraph(texto_intro, s_body))
     story.append(Spacer(1, 0.5*cm))
     
-    # Mostrar el Grado
+    
     story.append(Paragraph(f"<b>{grado_titulo}</b>", ParagraphStyle('Grado', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14)))
     story.append(Spacer(1, 1*cm))
 
-    # Detalle de la evidencia presentada
+    
     if grado_info.get('tipo_evidencia') == 'Acta de Examen':
         texto_evidencia = f"""
         <b>Documento presentado:</b> Copia del Acta de Examen de Grado.<br/>
@@ -385,7 +369,7 @@ def generar_evidencia_grado_firmable(docente, grado_info):
         <i>* Se presenta Acta de Examen por tener una antigüedad menor a un año de su obtención, en cumplimiento con los lineamientos vigentes.</i>
         """
     else:
-        # Cédula
+        
         texto_evidencia = f"""
         <b>Documento presentado:</b> Cédula Profesional Electrónica.<br/>
         <b>Número de Registro:</b> {grado_info.get('cedula', 'EN TRÁMITE')}<br/>
@@ -395,13 +379,13 @@ def generar_evidencia_grado_firmable(docente, grado_info):
     story.append(Paragraph(texto_evidencia, s_body))
     story.append(Spacer(1, 2.5*cm))
 
-    # --- SECCIÓN DE FIRMA (LO QUE PIDIÓ EL USUARIO) ---
     
-    # Leyenda Obligatoria
+    
+    
     story.append(Paragraph("ES COPIA FIEL DEL ORIGINAL", s_leyenda))
-    story.append(Spacer(1, 2*cm)) # Espacio para firmar físicamente
+    story.append(Spacer(1, 2*cm)) 
 
-    # Línea de firma
+    
     story.append(Paragraph("_________________________________________", s_firma_linea))
     story.append(Paragraph(f"<b>{nombre_docente}</b>", s_firma_nombre))
     story.append(Paragraph("PERSONA SOLICITANTE", s_firma_linea))
@@ -413,9 +397,7 @@ def generar_evidencia_grado_firmable(docente, grado_info):
     buffer.seek(0)
     return buffer
 
-# ==========================================
-# 9. CONSTANCIA DE LIBERACIÓN DE ACTIVIDADES
-# ==========================================
+
 def generar_constancia_liberacion_actividades(docente, liberaciones):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
@@ -485,14 +467,9 @@ def generar_constancia_liberacion_actividades(docente, liberaciones):
     buffer.seek(0)
     return buffer
 
-# ==========================================
-# 10. CONSTANCIA DE EVALUACIÓN DOCENTE (FIRMABLE)
-# ==========================================
-# ==========================================
-# 10. CONSTANCIA DE EVALUACIÓN DOCENTE (FIRMABLE)
-# ==========================================
+
 def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=None):
-    # --- CORRECCIÓN IMPORTANTE: Convertir a dict para usar .get() sin errores ---
+    
     docente = dict(docente)
     firmante = dict(firmante)
     
@@ -506,7 +483,7 @@ def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=N
     
     story = []
     
-    # Encabezado (Ahora .get() funcionará correctamente)
+    
     depto_nombre = docente.get('departamento', 'Departamento Académico')
     story.append(Paragraph(f"Instituto Tecnológico de Culiacán<br/>{depto_nombre}<br/>Oficio No. EV-2024/001", s_header))
     story.append(Spacer(1, 1.5*cm))
@@ -522,16 +499,15 @@ def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=N
     story.append(Paragraph(texto, s_body))
     story.append(Spacer(1, 1*cm))
 
-    # Tabla de Resultados
+    
     data = [['Periodo', 'Tipo de Evaluación', 'Calificación', 'Nivel']]
     
     if evaluaciones:
         for ev in evaluaciones:
-            # Convertimos también cada fila de evaluación a dict o accedemos por índice si es necesario
-            # sqlite3.Row permite acceso por nombre ev['campo']
+            
             periodo = "Ene-Jun 2024" if ev['id_periodo'] == 1 else "Ago-Dic 2024"
             
-            # Lógica visual para el tipo de evaluación
+            
             if ev['id_tipo_evaluacion'] == 1:
                 tipo = "Departamental"
             elif ev['id_tipo_evaluacion'] == 3:
@@ -541,13 +517,13 @@ def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=N
                 
             calif = ev['calificacion_global']
             
-            # Determinar nivel "SUFICIENTE"
-            nivel = "SUFICIENTE" # Por defecto para el demo
+            
+            nivel = "SUFICIENTE" 
             try:
-                if float(calif) < 3.7: # Criterio ejemplo numérico
+                if float(calif) < 3.7: 
                     nivel = "INSUFICIENTE"
             except:
-                pass # Si es texto como "Excelente", se queda en SUFICIENTE
+                pass 
 
             data.append([periodo, tipo, calif, nivel])
     else:
@@ -566,11 +542,11 @@ def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=N
     story.append(Spacer(1, 2*cm))
     story.append(Paragraph("Se extiende la presente para los fines del Programa de Estímulos al Desempeño.", s_body))
     
-    # --- SECCIÓN DE FIRMA ---
+    
     story.append(Spacer(1, 2.5*cm))
     story.append(Paragraph("A T E N T A M E N T E", s_firm))
 
-    # Insertar imagen de firma si existe
+    
     if datos_firma and datos_firma.get('ruta_firma') and os.path.exists(datos_firma['ruta_firma']):
         try:
             img_firma = RLImage(datos_firma['ruta_firma'], width=4*cm, height=2*cm)
@@ -588,7 +564,7 @@ def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=N
     else:
         story.append(Spacer(1, 2*cm)) 
 
-    # Datos del Firmante
+    
     nombre_firmante = f"{firmante['nombre']} {firmante['apellidos']}"
     puesto_firmante = firmante['nombre_puesto']
     
@@ -600,11 +576,9 @@ def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=N
     buffer.seek(0)
     return buffer
 
-# ==========================================
-# 11. CONSTANCIA DESEMPEÑO (DOBLE FIRMA)
-# ==========================================
+
 def generar_constancia_desempeno(docente, evaluaciones, firmante_desarrollo, firmante_sub, firmas_actuales={}):
-    # firmas_actuales es un dict: {'desarrollo': ruta_img, 'subdireccion': ruta_img}
+    
     docente = dict(docente)
     firmante_desarrollo = dict(firmante_desarrollo)
     firmante_sub = dict(firmante_sub)
@@ -635,7 +609,7 @@ def generar_constancia_desempeno(docente, evaluaciones, firmante_desarrollo, fir
     story.append(Paragraph(texto, s_body))
     story.append(Spacer(1, 1*cm))
 
-    # Tabla de Detalles
+    
     data = [['Periodo', 'Alumnos Evaluados', 'Calificación', 'Dictamen']]
     
     if evaluaciones:
@@ -659,24 +633,24 @@ def generar_constancia_desempeno(docente, evaluaciones, firmante_desarrollo, fir
     story.append(t)
     story.append(Spacer(1, 3*cm))
 
-    # --- DOBLE FIRMA ---
-    # Preparamos las celdas de la tabla de firmas
     
-    # Firma Izquierda: Desarrollo Académico
+    
+    
+    
     firma_img_des = Spacer(1, 2*cm)
     if firmas_actuales.get('desarrollo'):
         try:
             firma_img_des = RLImage(firmas_actuales['desarrollo'], width=3.5*cm, height=1.5*cm)
         except: pass
 
-    # Firma Derecha: Subdirección (Vo. Bo.)
+    
     firma_img_sub = Spacer(1, 2*cm)
     if firmas_actuales.get('subdireccion'):
         try:
             firma_img_sub = RLImage(firmas_actuales['subdireccion'], width=3.5*cm, height=1.5*cm)
         except: pass
 
-    # Textos de los firmantes
+    
     txt_des = [
         firma_img_des,
         Paragraph(f"<b>{firmante_desarrollo['nombre']} {firmante_desarrollo['apellidos']}</b>", s_firm_bold),
@@ -689,7 +663,7 @@ def generar_constancia_desempeno(docente, evaluaciones, firmante_desarrollo, fir
         Paragraph("Vo. Bo. " + firmante_sub['nombre_puesto'], s_firm)
     ]
 
-    # Tabla contenedora de firmas
+    
     tabla_firmas = Table([[txt_des, Spacer(1,1), txt_sub]], colWidths=[8*cm, 1*cm, 8*cm])
     tabla_firmas.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'CENTER'),

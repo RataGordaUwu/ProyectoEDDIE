@@ -141,10 +141,6 @@ try:
     # =========================================================================
     print("4. Registrando usuarios y firmas para los funcionarios...")
 
-    # Registramos a los nuevos jefes en la tabla Usuarios para que el sistema tenga sus firmas.
-    # Usamos las rutas genéricas que ya existen en tu proyecto.
-    
-    # Usuario para el Subdirector (Carlos)
     cursor.execute("""
         INSERT OR REPLACE INTO Usuarios (id_usuario, contrasena, rol, ruta_firma, ruta_sello)
         VALUES (
@@ -156,7 +152,7 @@ try:
         )
     """)
 
-    # Usuario para la Jefa DEPI (Laura)
+    
     cursor.execute("""
         INSERT OR REPLACE INTO Usuarios (id_usuario, contrasena, rol, ruta_firma, ruta_sello)
         VALUES (

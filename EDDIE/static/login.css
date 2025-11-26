@@ -1,4 +1,4 @@
-/* Reseteo básico y estilos globales */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -14,7 +14,7 @@ body {
     min-height: 100vh;
 }
 
-/* Tarjeta del formulario */
+
 .login-card {
     background-color: #ffffff;
     padding: 40px;
@@ -25,7 +25,7 @@ body {
     text-align: center;
 }
 
-/* Títulos */
+
 .login-card h1 {
     color: #202124;
     font-size: 28px;
@@ -40,7 +40,7 @@ body {
     margin-bottom: 30px;
 }
 
-/* Grupos de inputs */
+
 .input-group {
     margin-bottom: 20px;
     text-align: left;
@@ -63,14 +63,14 @@ body {
     font-family: inherit;
 }
 
-/* Input de usuario (Fondo azul claro) */
+
 .input-user {
     background-color: #e8f0fe;
     border: 1px solid transparent;
     color: #202124;
 }
 
-/* Input de contraseña (Borde negro grueso) */
+
 .password-wrapper {
     position: relative;
 }
@@ -83,7 +83,6 @@ body {
 }
 
 
-/* Botón */
 .login-button {
     width: 100%;
     padding: 12px;

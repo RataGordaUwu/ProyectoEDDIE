@@ -156,31 +156,31 @@
 
 
     <script>
-        // 1. Lógica del Menú Lateral
+
         document.getElementById('menu-toggle-btn').addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('show');
         });
 
-        // 2. Lógica para ABRIR el modal de FIRMA
+
         function abrirModalFirma(id) {
             document.getElementById('formFirma').action = "/firmar_solicitud/" + id;
             document.getElementById('modalFirma').style.display = 'flex';
         }
 
-        // 3. Lógica para ABRIR el modal de RECHAZO
+
         function abrirModalRechazo(id) {
             document.getElementById('formRechazo').action = "/rechazar_solicitud/" + id;
             document.getElementById('modalRechazo').style.display = 'flex';
         }
 
-        // 4. Lógica para CERRAR cualquier modal
+
         function cerrarModal(idModal) {
             document.getElementById(idModal).style.display = 'none';
         }
 
-        // 5. Lógica para RECARGAR la página después de descargar
+
         function recargarDespuesDeDescarga() {
-            // Esperamos 1.5 segundos (tiempo para que inicie la descarga)
+
             setTimeout(function() {
                 window.location.reload();
             }, 1500);
@@ -220,7 +220,7 @@
                 }
             });
         })();
-        // --- end account dropdown ---
+
     </script>
 
 </body>
