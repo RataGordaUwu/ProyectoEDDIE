@@ -154,3 +154,160 @@ def generar_carta_exclusividad(docente):
     doc.build(story)
     buffer.seek(0)
     return buffer
+
+# --- FUNCIÓN 3: CONSTANCIA DESARROLLO ACADÉMICO ---
+def generar_constancia_desarrollo(docente, firmante, datos_firma=None):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
+    styles = getSampleStyleSheet()
+    
+    # Estilos
+    s_header_right = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
+    s_title = ParagraphStyle('Title', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=12, spaceAfter=20)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
+    s_firm = ParagraphStyle('Firm', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=11, leading=14)
+    s_slogan = ParagraphStyle('Slogan', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Oblique', fontSize=8)
+
+    story = []
+
+    # Encabezado
+    story.append(Paragraph("Instituto Tecnológico de Culiacán<br/>Departamento de Desarrollo Académico", s_header_right))
+    story.append(Spacer(1, 1.5*cm))
+    
+    story.append(Paragraph("CONSTANCIA DE NO INCONVENIENTE", s_title))
+    story.append(Spacer(1, 1*cm))
+
+    story.append(Paragraph("A QUIEN CORRESPONDA:", ParagraphStyle('To', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=11)))
+    story.append(Spacer(1, 0.5*cm))
+
+    # Cuerpo
+    nombre_completo = f"{docente['nombre']} {docente['apellidos']}"
+    # NOTA: Simulo datos de evaluación (Periodo y Calificación) ya que no están en la BD simplificada
+    texto = f"""
+    La que suscribe, <b>{firmante['nombre_puesto']}</b>, hace CONSTAR que el (la) C. <b>{nombre_completo}</b>, 
+    con R.F.C. <b>{docente['rfc']}</b>, presentó la Cédula de Evaluación al Desempeño Docente 
+    correspondiente al periodo <b>Enero-Junio 2024</b>, obteniendo una calificación de <b>98.50 (Excelente)</b>.
+    <br/><br/>
+    Por lo anterior, este departamento a mi cargo no tiene inconveniente en que realice los trámites correspondientes.
+    """
+    story.append(Paragraph(texto.strip(), s_body))
+    story.append(Spacer(1, 1*cm))
+
+    texto_cierre = "A petición de la persona interesada para los fines legales que a la misma convengan, se extiende la presente en la ciudad de Culiacán, Sinaloa, a los veinticinco días del mes de Noviembre del año dos mil veinticinco."
+    story.append(Paragraph(texto_cierre, s_body))
+    story.append(Spacer(1, 2*cm))
+
+    # Firma
+    story.append(Paragraph("A T E N T A M E N T E", s_firm))
+    
+    img_firma = Spacer(1, 2*cm)
+    img_sello = Spacer(1, 2*cm)
+
+    if datos_firma:
+        if datos_firma.get('ruta_firma') and os.path.exists(datos_firma['ruta_firma']):
+            try: img_firma = RLImage(datos_firma['ruta_firma'], width=4*cm, height=2*cm)
+            except: pass
+        if datos_firma.get('ruta_sello') and os.path.exists(datos_firma['ruta_sello']):
+            try: img_sello = RLImage(datos_firma['ruta_sello'], width=3*cm, height=3*cm)
+            except: pass
+
+    # Tabla de firma (Igual que la de RH)
+    tabla_firma_data = [[Spacer(1,1), img_firma, img_sello]]
+    t = Table(tabla_firma_data, colWidths=[3*cm, 5*cm, 4*cm])
+    t.setStyle(TableStyle([('ALIGN', (1,0), (1,0), 'CENTER'), ('VALIGN', (0,0), (-1,-1), 'MIDDLE')]))
+    story.append(t)
+
+    bloque = f"<b>{firmante['nombre']} {firmante['apellidos']}</b><br/>{firmante['nombre_puesto'].upper()}"
+    story.append(Paragraph(bloque, s_firm))
+
+    story.append(Spacer(1, 2*cm))
+    story.append(Paragraph("Excelencia en Educación Tecnológica®", s_slogan))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+# ... (Imports anteriores) ...
+
+# --- FUNCIÓN 4: CONSTANCIA CVU (Desarrollo Académico) ---
+def generar_constancia_cvu(docente, firmante, datos_firma=None):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
+    styles = getSampleStyleSheet()
+    
+    # Estilos
+    s_header_right = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
+    s_destinatario = ParagraphStyle('Dest', parent=styles['Normal'], alignment=TA_LEFT, fontName='Helvetica-Bold', fontSize=11, leading=14, spaceAfter=15)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
+    s_firm = ParagraphStyle('Firm', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=11, leading=14)
+    s_slogan = ParagraphStyle('Slogan', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Oblique', fontSize=9)
+
+    story = []
+
+    # 1. Encabezado (Derecha)
+    header_text = """
+    Instituto Tecnológico de Culiacán<br/>
+    Culiacán, Sinaloa,<br/>
+    DEPTO. DE DESARROLLO ACADÉMICO<br/>
+    Núm. de Oficio: DDA-476-06-2025
+    """
+    story.append(Paragraph(header_text, s_header_right))
+    story.append(Spacer(1, 1.5*cm))
+
+    # 2. Destinatario (Izquierda)
+    story.append(Paragraph("H. COMISION DICTAMINADORA DEL EDD<br/>PRESENTE", s_destinatario))
+    story.append(Spacer(1, 0.5*cm))
+
+    # 3. Cuerpo
+    # Usamos las variables de la BD para que coincida con quien firma realmente
+    nombre_jefa = f"{firmante['nombre']} {firmante['apellidos']}"
+    puesto_jefa = firmante['nombre_puesto']
+    
+    intro = f"La que suscribe <b>{nombre_jefa}</b>, {puesto_jefa} del Instituto Tecnológico de Culiacán."
+    story.append(Paragraph(intro, s_body))
+    story.append(Spacer(1, 0.5*cm))
+
+    story.append(Paragraph("<b>HACE CONSTAR</b>", ParagraphStyle('Center', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold')))
+    story.append(Spacer(1, 0.5*cm))
+
+    nombre_docente = f"{docente['nombre']} {docente['apellidos']}"
+    registro_cvu = docente['registro_cvu'] if docente['registro_cvu'] else "SIN REGISTRO"
+
+    texto_principal = f"""
+    Que el (la) C. <b>{nombre_docente}</b> cuenta con el registro <b>{registro_cvu}</b>, así como la actualización de su Currículum Vitae (CVU-TecNM) en el portal https://cvu.dpil.tecnm.mx correspondiente al año 2024, entregando en formato electrónico su CVU en extenso al Departamento De Desarrollo Académico.
+    """
+    story.append(Paragraph(texto_principal.strip(), s_body))
+    story.append(Spacer(1, 1*cm))
+
+    texto_cierre = "A solicitud del interesado y para los fines que al mismo convenga se extiende la presente a los diez días del mes de junio del año dos mil veinticinco."
+    story.append(Paragraph(texto_cierre, s_body))
+    story.append(Spacer(1, 2*cm))
+
+    # 4. Firma
+    story.append(Paragraph("ATENTAMENTE", s_firm))
+    
+    img_firma = Spacer(1, 2*cm)
+    img_sello = Spacer(1, 2*cm)
+
+    if datos_firma:
+        if datos_firma.get('ruta_firma') and os.path.exists(datos_firma['ruta_firma']):
+            try: img_firma = RLImage(datos_firma['ruta_firma'], width=4*cm, height=2*cm)
+            except: pass
+        if datos_firma.get('ruta_sello') and os.path.exists(datos_firma['ruta_sello']):
+            try: img_sello = RLImage(datos_firma['ruta_sello'], width=3*cm, height=3*cm)
+            except: pass
+
+    tabla_firma_data = [[Spacer(1,1), img_firma, img_sello]]
+    t = Table(tabla_firma_data, colWidths=[3*cm, 5*cm, 4*cm])
+    t.setStyle(TableStyle([('ALIGN', (1,0), (1,0), 'CENTER'), ('VALIGN', (0,0), (-1,-1), 'MIDDLE')]))
+    story.append(t)
+
+    bloque = f"<b>{nombre_jefa}</b><br/>{puesto_jefa.upper()}"
+    story.append(Paragraph(bloque, s_firm))
+
+    story.append(Spacer(1, 2*cm))
+    story.append(Paragraph('"Excelencia en Educación Tecnológica"', s_slogan))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer

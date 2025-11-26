@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import sqlite3
 import os
 from datetime import datetime 
-from pdf_creator import generar_constancia_rh, generar_carta_exclusividad # <-- Agregado
+from pdf_creator import generar_constancia_rh, generar_carta_exclusividad, generar_constancia_desarrollo, generar_constancia_cvu # <-- Agregado
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_super_segura'
@@ -156,8 +156,13 @@ def enviar_documento(tipo):
     solicitante_id = session['user_id']
     destinatario_id = None
     
+    # ...
     if tipo == 'constancia_rh':
         destinatario_id = buscar_id_destinatario_por_puesto('Recursos Humanos')
+    # Agrupamos los que van a Desarrollo Académico
+    elif tipo in ['constancia_desarrollo', 'constancia_cvu']: 
+        destinatario_id = buscar_id_destinatario_por_puesto('Desarrollo Académico')
+    # ...
     
     if destinatario_id:
         conn = get_db_connection()
@@ -240,6 +245,39 @@ def ver_documento(tipo):
         datos_docente = obtener_datos_docente_completo(target_user_id)
         pdf_buffer = generar_carta_exclusividad(datos_docente)
 
+    # === CASO D: CONSTANCIA CVU (Misma lógica que Desarrollo) ===
+    elif tipo == 'constancia_cvu':
+        if solicitud_id: # Solo si viene de historial/recibidos
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM SolicitudesDocumentos WHERE id_solicitud = ?", (solicitud_id,))
+            solicitud = cursor.fetchone()
+            conn.close()
+            
+            if solicitud and solicitud['estado'] == 'Firmado':
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM Usuarios WHERE id_usuario = ?", (solicitud['id_usuario_destinatario'],))
+                jefe_usuario = cursor.fetchone()
+                conn.close()
+                if jefe_usuario:
+                    datos_firma = {
+                        'ruta_firma': resolver_ruta_imagen(jefe_usuario['ruta_firma']),
+                        'ruta_sello': resolver_ruta_imagen(jefe_usuario['ruta_sello'])
+                    }
+
+        datos_docente = obtener_datos_docente_completo(target_user_id)
+        
+        # Buscamos Jefa de Desarrollo Académico
+        firmante_id = buscar_id_destinatario_por_puesto('Desarrollo Académico')
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT d.nombre, d.apellidos, p.nombre_puesto FROM Docentes d JOIN AsignacionPuestos ap ON d.id_docente = ap.id_docente JOIN PuestosAdministrativos p ON ap.id_puesto = p.id_puesto WHERE d.id_docente = ?", (firmante_id,))
+        datos_firmante = cursor.fetchone()
+        conn.close()
+
+        pdf_buffer = generar_constancia_cvu(datos_docente, datos_firmante, datos_firma)
+
     else:
         return "Error: Tipo de documento no válido"
     
@@ -289,6 +327,39 @@ def descargar_documento(tipo):
     elif tipo == 'carta_exclusividad':
         datos_docente = obtener_datos_docente_completo(target_user_id)
         pdf_buffer = generar_carta_exclusividad(datos_docente)
+
+    # === CASO D: CONSTANCIA CVU (Misma lógica que Desarrollo) ===
+    elif tipo == 'constancia_cvu':
+        if solicitud_id: # Solo si viene de historial/recibidos
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM SolicitudesDocumentos WHERE id_solicitud = ?", (solicitud_id,))
+            solicitud = cursor.fetchone()
+            conn.close()
+            
+            if solicitud and solicitud['estado'] == 'Firmado':
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM Usuarios WHERE id_usuario = ?", (solicitud['id_usuario_destinatario'],))
+                jefe_usuario = cursor.fetchone()
+                conn.close()
+                if jefe_usuario:
+                    datos_firma = {
+                        'ruta_firma': resolver_ruta_imagen(jefe_usuario['ruta_firma']),
+                        'ruta_sello': resolver_ruta_imagen(jefe_usuario['ruta_sello'])
+                    }
+
+        datos_docente = obtener_datos_docente_completo(target_user_id)
+        
+        # Buscamos Jefa de Desarrollo Académico
+        firmante_id = buscar_id_destinatario_por_puesto('Desarrollo Académico')
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT d.nombre, d.apellidos, p.nombre_puesto FROM Docentes d JOIN AsignacionPuestos ap ON d.id_docente = ap.id_docente JOIN PuestosAdministrativos p ON ap.id_puesto = p.id_puesto WHERE d.id_docente = ?", (firmante_id,))
+        datos_firmante = cursor.fetchone()
+        conn.close()
+
+        pdf_buffer = generar_constancia_cvu(datos_docente, datos_firmante, datos_firma)
 
     else:
         return "Error: Tipo de documento no válido"
