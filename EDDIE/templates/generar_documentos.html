@@ -48,7 +48,7 @@
             <h2>Generar Documentos</h2>
             <p class="subtitle">Listado de documentos disponibles para descarga o trámite.</p>
 
-            
+            <h3 class="section-title">Actividades de docencia</h3>
             <div class="docs-list">
                 
                 <div class="doc-item">
@@ -79,18 +79,6 @@
                     </div>
                 </div>
 
-                        <div class="doc-item">
-                    <span class="doc-name">Participación en Diseño de Planes y Programas</span>
-                    <div class="doc-buttons">
-                        <a href="{{ url_for('ver_documento', tipo='constancia_participacion_planes') }}" target="_blank" class="btn-preview">
-                            Previsualizar
-                        </a>
-                        <a href="{{ url_for('descargar_documento', tipo='constancia_participacion_planes') }}" class="btn-download">
-                            Descargar
-                        </a>
-                    </div>
-                </div>
-
                 <div class="doc-item">
                     <span class="doc-name">Carta de Exclusividad Laboral</span>
                     <div class="doc-buttons">
@@ -103,29 +91,50 @@
                     </div>
                 </div>
 
+                <div class="doc-item">
+                    <span class="doc-name">Participación en Diseño de Planes y Programas</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_participacion_planes') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='constancia_participacion_planes') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
             </div>
             
-            
-                <div class="docs-list">
-                                
-                                <div class="doc-item">
-                                    <span class="doc-name">Constancia de Grado Académico (Cédula/Acta)</span>
-                                    <div class="doc-buttons">
-                                        <a href="{{ url_for('ver_documento', tipo='constancia_grado') }}" target="_blank" class="btn-preview">
-                                            Previsualizar
-                                        </a>
-                                        <a href="{{ url_for('descargar_documento', tipo='constancia_grado') }}" class="btn-download">
-                                            Descargar
-                                        </a>
-                                    </div>
-                                </div>
+            <h3 class="section-title">Documentos de requisito</h3>
+            <div class="docs-list">
+                
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de Grado Académico (Cédula/Acta)</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_grado') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='constancia_grado') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
 
-                            </div>
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Licencia (Sabático / Beca)</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='oficio_licencia') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='oficio_licencia') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+            </div>
 
         </div>
-
-
-                
     </main>
 
     <script>
