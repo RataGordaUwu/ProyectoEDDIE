@@ -599,3 +599,107 @@ def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=N
     doc.build(story)
     buffer.seek(0)
     return buffer
+
+# ==========================================
+# 11. CONSTANCIA DESEMPEÑO (DOBLE FIRMA)
+# ==========================================
+def generar_constancia_desempeno(docente, evaluaciones, firmante_desarrollo, firmante_sub, firmas_actuales={}):
+    # firmas_actuales es un dict: {'desarrollo': ruta_img, 'subdireccion': ruta_img}
+    docente = dict(docente)
+    firmante_desarrollo = dict(firmante_desarrollo)
+    firmante_sub = dict(firmante_sub)
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    
+    s_header = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10)
+    s_title = ParagraphStyle('Title', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=13, spaceAfter=20)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=16)
+    s_firm = ParagraphStyle('Firm', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica', fontSize=9)
+    s_firm_bold = ParagraphStyle('FirmBold', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=9)
+
+    story = []
+    
+    story.append(Paragraph("Instituto Tecnológico de Culiacán<br/>Departamento de Desarrollo Académico<br/>Oficio No. DDA-EVAL-2024/099", s_header))
+    story.append(Spacer(1, 1.5*cm))
+    
+    story.append(Paragraph("CONSTANCIA DE EVALUACIÓN DEL DESEMPEÑO DOCENTE FRENTE A GRUPO", s_title))
+    story.append(Spacer(1, 1*cm))
+
+    nombre = f"{docente['nombre']} {docente['apellidos']}"
+    texto = f"""
+    El Departamento de Desarrollo Académico hace CONSTAR que el (la) C. <b>{nombre}</b>, ha cumplido satisfactoriamente con las evaluaciones del desempeño docente frente a grupo correspondientes al periodo 2024.
+    <br/><br/>
+    Se certifica que las evaluaciones presentadas obtuvieron una calificación mínima de <b>SUFICIENTE</b> y corresponden a la evaluación de al menos el <b>60%</b> del estudiantado atendido, cumpliendo con la normativa vigente.
+    """
+    story.append(Paragraph(texto, s_body))
+    story.append(Spacer(1, 1*cm))
+
+    # Tabla de Detalles
+    data = [['Periodo', 'Alumnos Evaluados', 'Calificación', 'Dictamen']]
+    
+    if evaluaciones:
+        for ev in evaluaciones:
+            periodo = "Ene-Jun 2024" if ev['id_periodo'] == 1 else "Ago-Dic 2024"
+            alumnos = str(ev['alumnos_participantes'])
+            calif = ev['calificacion_global']
+            data.append([periodo, alumnos, calif, 'SATISFACTORIO'])
+    else:
+        data.append(["2024", "0", "N/A", "PENDIENTE"])
+
+    t = Table(data, colWidths=[4.5*cm, 4*cm, 3.5*cm, 4.5*cm])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), '#f0f0f0'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 1, 'black'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+    ]))
+    story.append(t)
+    story.append(Spacer(1, 3*cm))
+
+    # --- DOBLE FIRMA ---
+    # Preparamos las celdas de la tabla de firmas
+    
+    # Firma Izquierda: Desarrollo Académico
+    firma_img_des = Spacer(1, 2*cm)
+    if firmas_actuales.get('desarrollo'):
+        try:
+            firma_img_des = RLImage(firmas_actuales['desarrollo'], width=3.5*cm, height=1.5*cm)
+        except: pass
+
+    # Firma Derecha: Subdirección (Vo. Bo.)
+    firma_img_sub = Spacer(1, 2*cm)
+    if firmas_actuales.get('subdireccion'):
+        try:
+            firma_img_sub = RLImage(firmas_actuales['subdireccion'], width=3.5*cm, height=1.5*cm)
+        except: pass
+
+    # Textos de los firmantes
+    txt_des = [
+        firma_img_des,
+        Paragraph(f"<b>{firmante_desarrollo['nombre']} {firmante_desarrollo['apellidos']}</b>", s_firm_bold),
+        Paragraph(firmante_desarrollo['nombre_puesto'], s_firm)
+    ]
+    
+    txt_sub = [
+        firma_img_sub,
+        Paragraph(f"<b>{firmante_sub['nombre']} {firmante_sub['apellidos']}</b>", s_firm_bold),
+        Paragraph("Vo. Bo. " + firmante_sub['nombre_puesto'], s_firm)
+    ]
+
+    # Tabla contenedora de firmas
+    tabla_firmas = Table([[txt_des, Spacer(1,1), txt_sub]], colWidths=[8*cm, 1*cm, 8*cm])
+    tabla_firmas.setStyle(TableStyle([
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'BOTTOM')
+    ]))
+    
+    story.append(tabla_firmas)
+    story.append(Spacer(1, 1*cm))
+    story.append(Paragraph("Excelencia en Educación Tecnológica®", ParagraphStyle('Slogan', alignment=TA_CENTER, fontSize=8, fontName='Helvetica-Oblique')))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer

@@ -14,7 +14,8 @@ from pdf_creator import (
     generar_oficio_licencia,                # <--- Faltaba
     generar_evidencia_grado_firmable,
     generar_constancia_liberacion_actividades,
-    generar_constancia_evaluacion
+    generar_constancia_evaluacion,
+    generar_constancia_desempeno
 )
 
 app = Flask(__name__)
@@ -218,11 +219,13 @@ def recibidos():
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # --- CORRECCIÓN: Usamos LIKE 'Pendiente%' ---
+    # Esto permite que aparezcan 'Pendiente', 'Pendiente_Desarrollo' y 'Pendiente_Subdireccion'
     query = """
         SELECT s.*, d.nombre, d.apellidos 
         FROM SolicitudesDocumentos s
         JOIN Docentes d ON s.id_docente_solicitante = d.id_docente
-        WHERE s.id_usuario_destinatario = ? AND s.estado = 'Pendiente'
+        WHERE s.id_usuario_destinatario = ? AND s.estado LIKE 'Pendiente%'
     """
     cursor.execute(query, (destinatario_id,))
     solicitudes = cursor.fetchall()
@@ -259,33 +262,53 @@ def enviar_documento(tipo):
     
     solicitante_id = session['user_id']
     destinatario_id = None
+    estado_inicial = 'Pendiente' # Estado por defecto
     
-    # --- LOGICA DE DESTINATARIOS ---
-    if tipo == 'constancia_rh' or tipo == 'oficio_licencia': # Licencias también van a RH
+    # --- 1. DOCUMENTOS PARA RECURSOS HUMANOS ---
+    if tipo == 'constancia_rh' or tipo == 'oficio_licencia':
         destinatario_id = buscar_id_destinatario_por_puesto('Recursos Humanos')
     
+    # --- 2. DOCUMENTOS PARA DESARROLLO ACADÉMICO (Flujo Simple) ---
     elif tipo in ['constancia_desarrollo', 'constancia_cvu', 'constancia_grado']: 
         destinatario_id = buscar_id_destinatario_por_puesto('Desarrollo Académico')
-        
+
+    # --- 3. EVALUACIONES (Jefe Inmediato: Sistemas o DEPI) ---
     elif tipo == 'constancia_evaluacion':
-        # Aquí usamos la lógica dinámica: ¿Es su jefe de Depto o la Jefa DEPI?
         jefe_data = obtener_jefe_inmediato(solicitante_id)
         if jefe_data:
             destinatario_id = jefe_data['id_docente']
+
+    # --- 4. CONSTANCIA DESEMPEÑO (Flujo Doble Firma) ---
+    elif tipo == 'constancia_desempeno':
+        # Paso 1: Se envía a Yareli (Jefa Desarrollo - ID 998)
+        destinatario_id = 998 
+        estado_inicial = 'Pendiente_Desarrollo'
     
-    # --- GUARDADO EN BD (Igual que antes) ---
+    # --- INSERCIÓN EN BD ---
     if destinatario_id:
-        # ... (código existente de verificación e insert) ...
-        # Solo asegúrate de que este bloque maneje el 'destinatario_id' que acabamos de encontrar
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id_solicitud FROM SolicitudesDocumentos WHERE id_docente_solicitante = ? AND tipo_documento = ? AND estado = 'Pendiente'", (solicitante_id, tipo))
-        if cursor.fetchone():
-            flash("Ya tienes una solicitud pendiente.")
+
+        # Verificamos si ya existe una solicitud activa (en cualquier estado no finalizado)
+        cursor.execute("""
+            SELECT id_solicitud FROM SolicitudesDocumentos 
+            WHERE id_docente_solicitante = ? 
+            AND tipo_documento = ? 
+            AND estado IN ('Pendiente', 'Pendiente_Desarrollo', 'Pendiente_Subdireccion')
+        """, (solicitante_id, tipo))
+        
+        existe = cursor.fetchone()
+
+        if existe:
+            flash("Ya tienes una solicitud en proceso para este documento.")
         else:
-            cursor.execute("INSERT INTO SolicitudesDocumentos (id_docente_solicitante, id_usuario_destinatario, tipo_documento, estado) VALUES (?, ?, ?, 'Pendiente')", (solicitante_id, destinatario_id, tipo))
+            cursor.execute("""
+                INSERT INTO SolicitudesDocumentos (id_docente_solicitante, id_usuario_destinatario, tipo_documento, estado)
+                VALUES (?, ?, ?, ?)
+            """, (solicitante_id, destinatario_id, tipo, estado_inicial))
             conn.commit()
-            flash("Documento enviado a revisión.")
+            flash("Documento enviado correctamente a revisión.")
+        
         conn.close()
     else:
         flash("Error: No se encontró destinatario para este trámite.")
@@ -388,6 +411,36 @@ def ver_documento(tipo):
             
         pdf_buffer = generar_constancia_evaluacion(datos_docente, evaluaciones, datos_firmante, datos_firma)
     
+    # Dentro de ver_documento y descargar_documento:
+    
+    elif tipo == 'constancia_desempeno':
+        evaluaciones = obtener_datos_desempeno(target_user_id)
+        datos_yareli = obtener_datos_jefe_usuario(998)
+        datos_carlos = obtener_datos_jefe_usuario(996)
+        firmas_mostrar = {}
+
+        # Si viene de una solicitud, revisamos el estado para saber qué firmas pintar
+        if solicitud_id:
+            # Reutilizamos la conexión para ver el estado
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT estado FROM SolicitudesDocumentos WHERE id_solicitud = ?", (solicitud_id,))
+            res = cursor.fetchone()
+            conn.close()
+            
+            estado = res['estado'] if res else ''
+            
+            # Lógica de visualización progresiva
+            if estado == 'Pendiente_Subdireccion':
+                # Ya firmó Desarrollo
+                firmas_mostrar['desarrollo'] = resolver_ruta_imagen(datos_yareli['ruta_firma'])
+            elif estado == 'Firmado':
+                # Ya firmaron los dos
+                firmas_mostrar['desarrollo'] = resolver_ruta_imagen(datos_yareli['ruta_firma'])
+                firmas_mostrar['subdireccion'] = resolver_ruta_imagen(datos_carlos['ruta_firma'])
+        
+        pdf_buffer = generar_constancia_desempeno(datos_docente, evaluaciones, datos_yareli, datos_carlos, firmas_mostrar)
+    
     else:
         return "Error: Tipo de documento no válido"
     
@@ -474,6 +527,36 @@ def descargar_documento(tipo):
             datos_firmante = {"nombre": "JEFE", "apellidos": "DEPARTAMENTO", "nombre_puesto": "Jefe Inmediato"}
             
         pdf_buffer = generar_constancia_evaluacion(datos_docente, evaluaciones, datos_firmante, datos_firma)
+
+    # Dentro de ver_documento y descargar_documento:
+    
+    elif tipo == 'constancia_desempeno':
+        evaluaciones = obtener_datos_desempeno(target_user_id)
+        datos_yareli = obtener_datos_jefe_usuario(998)
+        datos_carlos = obtener_datos_jefe_usuario(996)
+        firmas_mostrar = {}
+
+        # Si viene de una solicitud, revisamos el estado para saber qué firmas pintar
+        if solicitud_id:
+            # Reutilizamos la conexión para ver el estado
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT estado FROM SolicitudesDocumentos WHERE id_solicitud = ?", (solicitud_id,))
+            res = cursor.fetchone()
+            conn.close()
+            
+            estado = res['estado'] if res else ''
+            
+            # Lógica de visualización progresiva
+            if estado == 'Pendiente_Subdireccion':
+                # Ya firmó Desarrollo
+                firmas_mostrar['desarrollo'] = resolver_ruta_imagen(datos_yareli['ruta_firma'])
+            elif estado == 'Firmado':
+                # Ya firmaron los dos
+                firmas_mostrar['desarrollo'] = resolver_ruta_imagen(datos_yareli['ruta_firma'])
+                firmas_mostrar['subdireccion'] = resolver_ruta_imagen(datos_carlos['ruta_firma'])
+        
+        pdf_buffer = generar_constancia_desempeno(datos_docente, evaluaciones, datos_yareli, datos_carlos, firmas_mostrar)
     
     else:
         return "Error: Tipo de documento no válido"
@@ -484,7 +567,6 @@ def descargar_documento(tipo):
 
 @app.route('/firmar_solicitud/<int:id_solicitud>', methods=['POST'])
 def firmar_solicitud(id_solicitud):
-    # ... (código de validación de usuario y contraseña igual que antes) ...
     if 'user_id' not in session or session['rol'] != 'jefe':
         return "No autorizado", 403
 
@@ -494,6 +576,7 @@ def firmar_solicitud(id_solicitud):
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # --- VALIDACIÓN DE CREDENCIALES ---
     cursor.execute("SELECT * FROM Usuarios WHERE id_usuario = ? AND contrasena = ?", (user_id, password))
     usuario_jefe = cursor.fetchone()
 
@@ -502,73 +585,129 @@ def firmar_solicitud(id_solicitud):
         conn.close()
         return redirect(url_for('recibidos'))
 
+    # --- OBTENER DATOS DE LA SOLICITUD ---
     cursor.execute("SELECT * FROM SolicitudesDocumentos WHERE id_solicitud = ?", (id_solicitud,))
     solicitud = cursor.fetchone()
+    
+    if not solicitud:
+        conn.close()
+        return "Solicitud no encontrada", 404
 
-    fecha_firma = datetime.now()
-    cursor.execute("""
-        UPDATE SolicitudesDocumentos 
-        SET estado = 'Firmado', fecha_firma = ?
-        WHERE id_solicitud = ?
-    """, (fecha_firma, id_solicitud))
-    conn.commit()
-
-    # --- GENERACIÓN DEL PDF FIRMADO ---
+    tipo_doc = solicitud['tipo_documento']
+    estado_actual = solicitud['estado']
     target_id = solicitud['id_docente_solicitante']
+    
+    # Datos del docente solicitante
     datos_docente = obtener_datos_docente_completo(target_id)
     
+    # Datos visuales de la firma del JEFE ACTUAL (quien está logueado)
     datos_firma_visual = {
         'ruta_firma': resolver_ruta_imagen(usuario_jefe['ruta_firma']),
         'ruta_sello': resolver_ruta_imagen(usuario_jefe['ruta_sello'])
     }
-    
-    tipo_doc = solicitud['tipo_documento']
+
     pdf_buffer = None
 
-    # ... (bloques existentes para constancia_rh, desarrollo, cvu, etc.) ...
-
-    if tipo_doc == 'constancia_rh':
-        datos_firmante = obtener_datos_firmante_rh()
-        pdf_buffer = generar_constancia_rh(datos_docente, datos_firmante, datos_firma_visual)
+    # =====================================================
+    # LÓGICA DE FIRMA Y GENERACIÓN DE PDF
+    # =====================================================
     
-    elif tipo_doc == 'constancia_desarrollo':
-        datos_firmante = obtener_datos_firmante_desarrollo()
-        pdf_buffer = generar_constancia_desarrollo(datos_docente, datos_firmante, datos_firma_visual)
+    # --- CASO A: Constancia Desempeño (Flujo de 2 Pasos) ---
+    if tipo_doc == 'constancia_desempeno':
         
-    elif tipo_doc == 'constancia_cvu':
-        datos_firmante = obtener_datos_firmante_desarrollo()
-        pdf_buffer = generar_constancia_cvu(datos_docente, datos_firmante, datos_firma_visual)
-        
-    elif tipo_doc == 'constancia_grado':
-        # Nota: constancia_grado normalmente no se firma por jefe en este flujo, pero si se requiere:
-        datos_firmante = obtener_datos_firmante_desarrollo()
-        datos_grado = obtener_datos_grado(target_id)
-        pdf_buffer = generar_constancia_grado(datos_docente, datos_grado, datos_firmante, datos_firma_visual)
-        
-    elif tipo_doc == 'oficio_licencia':
-        datos_firmante = obtener_datos_firmante_rh()
-        datos_licencia = obtener_datos_licencia(target_id)
-        pdf_buffer = generar_oficio_licencia(datos_docente, datos_licencia, datos_firmante, datos_firma_visual)
+        if estado_actual == 'Pendiente_Desarrollo':
+            # PASO 1: Firma Yareli -> Pasa a Carlos
+            nuevo_estado = 'Pendiente_Subdireccion'
+            nuevo_destinatario = 996 # Carlos (Subdirector)
+            
+            cursor.execute("""
+                UPDATE SolicitudesDocumentos 
+                SET estado = ?, id_usuario_destinatario = ?
+                WHERE id_solicitud = ?
+            """, (nuevo_estado, nuevo_destinatario, id_solicitud))
+            conn.commit()
+            
+            # Generar PDF intermedio (Solo firma de Yareli)
+            evaluaciones = obtener_datos_desempeno(target_id)
+            datos_yareli = obtener_datos_jefe_usuario(998)
+            datos_carlos = obtener_datos_jefe_usuario(996)
+            
+            # La firma que se estampa ahora es la del usuario actual (Yareli)
+            rutas_firmas = {'desarrollo': resolver_ruta_imagen(usuario_jefe['ruta_firma'])}
+            
+            pdf_buffer = generar_constancia_desempeno(datos_docente, evaluaciones, datos_yareli, datos_carlos, rutas_firmas)
 
-    # --- AQUÍ ESTABA EL FALTANTE ---
-    elif tipo_doc == 'constancia_evaluacion':
-        evaluaciones = obtener_datos_evaluaciones(target_id)
-        # El firmante es el usuario logueado actual (el jefe)
-        datos_firmante = obtener_datos_docente_completo(user_id) 
-        # Aseguramos que tenga el campo nombre_puesto (viene de PuestosAdministrativos)
-        # Si obtener_datos_docente_completo no trae el puesto administrativo, lo buscamos:
+        elif estado_actual == 'Pendiente_Subdireccion':
+            # PASO 2: Firma Carlos -> Finaliza
+            fecha_firma = datetime.now()
+            cursor.execute("""
+                UPDATE SolicitudesDocumentos 
+                SET estado = 'Firmado', fecha_firma = ?
+                WHERE id_solicitud = ?
+            """, (fecha_firma, id_solicitud))
+            conn.commit()
+            
+            # Generar PDF FINAL (Ambas firmas)
+            evaluaciones = obtener_datos_desempeno(target_id)
+            datos_yareli = obtener_datos_jefe_usuario(998)
+            datos_carlos = obtener_datos_jefe_usuario(996)
+            
+            rutas_firmas = {
+                'desarrollo': resolver_ruta_imagen(datos_yareli['ruta_firma']), # Recuperamos la de Yareli
+                'subdireccion': resolver_ruta_imagen(usuario_jefe['ruta_firma']) # Estampamos la de Carlos (Actual)
+            }
+            pdf_buffer = generar_constancia_desempeno(datos_docente, evaluaciones, datos_yareli, datos_carlos, rutas_firmas)
+
+    # --- CASO B: Flujo Estándar (Firma Única) ---
+    else:
+        # Actualizar estado a 'Firmado'
+        fecha_firma = datetime.now()
         cursor.execute("""
-            SELECT nombre_puesto FROM PuestosAdministrativos pa
-            JOIN AsignacionPuestos ap ON pa.id_puesto = ap.id_puesto
-            WHERE ap.id_docente = ? AND ap.fecha_fin IS NULL
-        """, (user_id,))
-        puesto_res = cursor.fetchone()
+            UPDATE SolicitudesDocumentos 
+            SET estado = 'Firmado', fecha_firma = ?
+            WHERE id_solicitud = ?
+        """, (fecha_firma, id_solicitud))
+        conn.commit()
+
+        # Generar PDF según el tipo específico
+        if tipo_doc == 'constancia_rh':
+            datos_firmante = obtener_datos_firmante_rh()
+            pdf_buffer = generar_constancia_rh(datos_docente, datos_firmante, datos_firma_visual)
         
-        firmante_dict = dict(datos_firmante)
-        firmante_dict['nombre_puesto'] = puesto_res['nombre_puesto'] if puesto_res else "JEFE ENCARGADO"
-        
-        pdf_buffer = generar_constancia_evaluacion(datos_docente, evaluaciones, firmante_dict, datos_firma_visual)
-    # -------------------------------
+        elif tipo_doc == 'constancia_desarrollo':
+            datos_firmante = obtener_datos_firmante_desarrollo()
+            pdf_buffer = generar_constancia_desarrollo(datos_docente, datos_firmante, datos_firma_visual)
+            
+        elif tipo_doc == 'constancia_cvu':
+            datos_firmante = obtener_datos_firmante_desarrollo()
+            pdf_buffer = generar_constancia_cvu(datos_docente, datos_firmante, datos_firma_visual)
+            
+        elif tipo_doc == 'constancia_grado':
+            datos_grado = obtener_datos_grado(target_id)
+            datos_firmante = obtener_datos_firmante_desarrollo()
+            pdf_buffer = generar_constancia_grado(datos_docente, datos_grado, datos_firmante, datos_firma_visual)
+            
+        elif tipo_doc == 'oficio_licencia':
+            datos_licencia = obtener_datos_licencia(target_id)
+            datos_firmante = obtener_datos_firmante_rh()
+            pdf_buffer = generar_oficio_licencia(datos_docente, datos_licencia, datos_firmante, datos_firma_visual)
+
+        elif tipo_doc == 'constancia_evaluacion':
+            evaluaciones = obtener_datos_evaluaciones(target_id)
+            
+            # Obtenemos el puesto del jefe actual para ponerlo en el PDF
+            cursor.execute("""
+                SELECT nombre_puesto FROM PuestosAdministrativos pa
+                JOIN AsignacionPuestos ap ON pa.id_puesto = ap.id_puesto
+                WHERE ap.id_docente = ? AND ap.fecha_fin IS NULL
+            """, (user_id,))
+            puesto_res = cursor.fetchone()
+            
+            # Convertimos datos del firmante a dict para manipularlo y enviarlo
+            datos_jefe_dict = dict(obtener_datos_docente_completo(user_id))
+            datos_jefe_dict['nombre_puesto'] = puesto_res['nombre_puesto'] if puesto_res else "JEFE AUTORIZADO"
+            
+            pdf_buffer = generar_constancia_evaluacion(datos_docente, evaluaciones, datos_jefe_dict, datos_firma_visual)
 
     conn.close()
 
@@ -576,7 +715,7 @@ def firmar_solicitud(id_solicitud):
         nombre_archivo = f"Firmado_{tipo_doc}.pdf"
         return send_file(pdf_buffer, as_attachment=True, download_name=nombre_archivo, mimetype='application/pdf')
     else:
-        return "Error al generar documento firmado"
+        return "Error: Tipo de documento desconocido al generar firma."
 
 # --- RUTA: PROCESAR RECHAZO (JEFE) ---
 @app.route('/rechazar_solicitud/<int:id_solicitud>', methods=['POST'])
@@ -697,6 +836,39 @@ def obtener_jefe_inmediato(docente_id):
         
     conn.close()
     return jefe
+
+# --- HELPER: EVALUACIÓN ALUMNOS (TIPO 2) ---
+def obtener_datos_desempeno(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Tipo 2 = Evaluación Alumnos
+    query = """
+        SELECT * FROM EvaluacionesDocentes 
+        WHERE id_docente = ? AND id_tipo_evaluacion = 2 
+        ORDER BY id_periodo ASC
+    """
+    cursor.execute(query, (user_id,))
+    datos = cursor.fetchall()
+    conn.close()
+    return datos
+
+# --- HELPER: DATOS DE LOS JEFES ESPECÍFICOS ---
+def obtener_datos_jefe_usuario(user_id_jefe):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Obtenemos datos personales y el puesto para el PDF
+    query = """
+        SELECT d.nombre, d.apellidos, pa.nombre_puesto, u.ruta_firma, u.ruta_sello
+        FROM Docentes d
+        JOIN AsignacionPuestos ap ON d.id_docente = ap.id_docente
+        JOIN PuestosAdministrativos pa ON ap.id_puesto = pa.id_puesto
+        LEFT JOIN Usuarios u ON d.id_docente = u.id_usuario
+        WHERE d.id_docente = ? AND ap.fecha_fin IS NULL
+    """
+    cursor.execute(query, (user_id_jefe,))
+    datos = cursor.fetchone()
+    conn.close()
+    return datos
 
 @app.route('/logout')
 def logout():

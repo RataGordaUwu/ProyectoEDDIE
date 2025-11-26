@@ -65,21 +65,6 @@
                     </div>
                 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
-
                 <div class="doc-item">
                     <span class="doc-name">Constancia de Actualización de CVU</span>
                     <div class="doc-buttons">
@@ -142,6 +127,23 @@
                     <form action="{{ url_for('enviar_documento', tipo='constancia_evaluacion') }}" method="POST" style="display:inline;">
                         <button type="submit" class="btn-download" onclick="return confirm('¿Enviar evaluaciones a su Jefe Inmediato para firma?');" style="border:none; font-family:inherit;">
                             Enviar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="doc-item">
+                <span class="doc-name">Constancia Desempeño Docente (Alumnos)</span>
+                <span style="font-size: 11px; color: #666; display:block; margin-top:2px;">Firma Desarrollo -> Firma Subdirección</span>
+                
+                <div class="doc-buttons">
+                    <a href="{{ url_for('ver_documento', tipo='constancia_desempeno') }}" target="_blank" class="btn-preview">
+                        Previsualizar
+                    </a>
+                    
+                    <form action="{{ url_for('enviar_documento', tipo='constancia_desempeno') }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-download" onclick="return confirm('Este documento requiere un flujo de doble firma.\n1. Se enviará a Desarrollo Académico.\n2. Al aprobarse, pasará a Subdirección.\n\n¿Desea continuar?');" style="border:none; font-family:inherit;">
+                            Iniciar Trámite
                         </button>
                     </form>
                 </div>
