@@ -311,3 +311,139 @@ def generar_constancia_cvu(docente, firmante, datos_firma=None):
     doc.build(story)
     buffer.seek(0)
     return buffer
+
+# --- FUNCIÓN 5: CONSTANCIA DE GRADO / CÉDULA (Versión Sin Firma) ---
+def generar_constancia_grado(docente, grado_info, firmante, datos_firma=None):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
+    styles = getSampleStyleSheet()
+    
+    # Estilos Personalizados
+    s_header = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
+    s_destinatario = ParagraphStyle('Dest', parent=styles['Normal'], alignment=TA_LEFT, fontName='Helvetica-Bold', fontSize=12, spaceAfter=20)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
+    s_list_item = ParagraphStyle('ListItem', parent=styles['Normal'], alignment=TA_LEFT, fontName='Helvetica', fontSize=11, leading=14, leftIndent=20)
+    s_slogan = ParagraphStyle('Slogan', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Oblique', fontSize=9)
+
+    story = []
+
+    # 1. Encabezado
+    story.append(Paragraph("Instituto Tecnológico de Culiacán<br/>DIVISIÓN DE ESTUDIOS DE POSGRADO E INVESTIGACIÓN<br/>Oficio No. DEPI-2025/089", s_header))
+    story.append(Spacer(1, 1.5*cm))
+
+    # 2. Destinatario
+    story.append(Paragraph("Evidencia de la cédula profesional.", s_destinatario))
+    story.append(Spacer(1, 0.5*cm))
+
+    # 3. Cuerpo (Redacción impersonal)
+    nombre_docente = f"{docente['nombre']} {docente['apellidos']}"
+    
+    # Cambio: "Se hace CONSTAR" en lugar de "El que suscribe..."
+    texto_intro = f"Por medio de la presente, la División de Estudios de Posgrado e Investigación hace CONSTAR que el (la) C. <b>{nombre_docente}</b>, adscrito(a) a este Instituto, ha acreditado fehacientemente contar con el grado académico de:"
+    story.append(Paragraph(texto_intro, s_body))
+    story.append(Spacer(1, 0.5*cm))
+
+    # Nombre del Grado
+    grado_titulo = grado_info.get('titulo', 'GRADO ACADÉMICO SUPERIOR').upper()
+    story.append(Paragraph(f"<b>{grado_titulo}</b>", ParagraphStyle('Grado', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14)))
+    story.append(Spacer(1, 0.5*cm))
+
+    # Detalles de la Evidencia
+    story.append(Paragraph("Mediante la presentación del siguiente documento probatorio:", s_body))
+    story.append(Spacer(1, 0.5*cm))
+
+    if grado_info.get('tipo_evidencia') == 'Acta de Examen':
+        texto_evidencia = f"""
+        <b>ACTA DE EXAMEN DE GRADO</b><br/>
+        Nombre del Trabajo: <b>"{grado_info.get('nombre_trabajo', 'N/A')}"</b><br/>
+        Fecha de Examen: <b>{grado_info.get('fecha_examen', 'N/A')}</b>
+        """
+        story.append(Paragraph(texto_evidencia, s_list_item))
+    else:
+        texto_evidencia = f"""
+        <b>CÉDULA PROFESIONAL ELECTRÓNICA</b><br/>
+        Número de Registro: <b>{grado_info.get('cedula', 'EN TRÁMITE')}</b>
+        """
+        story.append(Paragraph(texto_evidencia, s_list_item))
+
+    story.append(Spacer(1, 2*cm))
+
+    # Cierre
+    texto_cierre = "Se extiende la presente constancia para los fines legales correspondientes, en la ciudad de Culiacán, Sinaloa, a los veinticinco días del mes de Noviembre del año dos mil veinticinco."
+    story.append(Paragraph(texto_cierre, s_body))
+    story.append(Spacer(1, 3*cm))
+
+    # 4. Pie de página (Solo eslogan, sin firma)
+    story.append(Paragraph("Excelencia en Educación Tecnológica®", s_slogan))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+# --- FUNCIÓN 6: CONSTANCIA DE DISEÑO CURRICULAR (Sin firma, Informativa) ---
+def generar_constancia_participacion_planes(docente, participacion, datos_firma=None):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
+    styles = getSampleStyleSheet()
+    
+    # Estilos
+    s_header = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
+    s_title = ParagraphStyle('Title', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14, spaceAfter=20)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
+    s_list_label = ParagraphStyle('ListLabel', parent=styles['Normal'], alignment=TA_LEFT, fontName='Helvetica-Bold', fontSize=11, leading=14, leftIndent=20)
+    s_list_content = ParagraphStyle('ListContent', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=14, leftIndent=30, spaceAfter=5)
+    s_slogan = ParagraphStyle('Slogan', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Oblique', fontSize=9)
+
+    story = []
+
+    # 1. Encabezado
+    story.append(Paragraph("Instituto Tecnológico de Culiacán<br/>SUBDIRECCIÓN ACADÉMICA<br/>Depto. de Desarrollo Académico", s_header))
+    story.append(Spacer(1, 1.5*cm))
+
+    # 2. Título
+    story.append(Paragraph("CONSTANCIA DE PARTICIPACIÓN EN DISEÑO CURRICULAR", s_title))
+    story.append(Spacer(1, 1*cm))
+
+    # 3. Cuerpo
+    nombre_docente = f"{docente['nombre']} {docente['apellidos']}"
+    texto_intro = f"Por medio de la presente se hace CONSTAR que el (la) C. <b>{nombre_docente}</b>, docente adscrito(a) a este Instituto, participó activamente en la elaboración y/o actualización de planes y programas de estudio, conforme a los registros oficiales obrantes en este departamento."
+    story.append(Paragraph(texto_intro, s_body))
+    story.append(Spacer(1, 1*cm))
+
+    # 4. Detalles de la Participación (Datos de los Inserts)
+    if participacion:
+        # Evento
+        story.append(Paragraph("Evento / Actividad:", s_list_label))
+        story.append(Paragraph(participacion['nombre_evento'], s_list_content))
+        story.append(Spacer(1, 0.2*cm))
+
+        # Rol y Oficio
+        story.append(Paragraph("Rol de Participación:", s_list_label))
+        story.append(Paragraph(f"{participacion['rol']} (Oficio No. {participacion['numero_oficio_comision']})", s_list_content))
+        story.append(Spacer(1, 0.2*cm))
+
+        # Periodo
+        story.append(Paragraph("Periodo de realización:", s_list_label))
+        story.append(Paragraph(participacion['nombre_periodo'], s_list_content))
+        story.append(Spacer(1, 0.2*cm))
+        
+        # Actividades
+        if participacion['actividades_desarrolladas']:
+            story.append(Paragraph("Actividades desarrolladas:", s_list_label))
+            story.append(Paragraph(participacion['actividades_desarrolladas'], s_list_content))
+    else:
+        story.append(Paragraph("No se encontró información registrada de participación curricular vigente.", s_body))
+
+    story.append(Spacer(1, 2*cm))
+
+    # 5. Cierre
+    texto_cierre = "Se extiende la presente para los fines de acreditación académica correspondientes, en la ciudad de Culiacán, Sinaloa, a los veinticinco días del mes de Noviembre del año dos mil veinticinco."
+    story.append(Paragraph(texto_cierre, s_body))
+    story.append(Spacer(1, 3*cm))
+
+    # 6. Pie (Sin firma)
+    story.append(Paragraph("Excelencia en Educación Tecnológica®", s_slogan))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
