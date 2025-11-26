@@ -57,36 +57,9 @@
                         <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
                             Previsualizar
                         </a>
+
                         <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
                             <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
-                                Enviar
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="doc-item">
-                    <span class="doc-name">Constancia de No Inconveniente (Desarrollo Académico)</span>
-                    <div class="doc-buttons">
-                        <a href="{{ url_for('ver_documento', tipo='constancia_desarrollo') }}" target="_blank" class="btn-preview">
-                            Previsualizar
-                        </a>
-                        <form action="{{ url_for('enviar_documento', tipo='constancia_desarrollo') }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar a Desarrollo Académico para firma?');" style="border:none; font-family:inherit;">
-                                Enviar
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="doc-item">
-                    <span class="doc-name">Constancia de Actualización de CVU</span>
-                    <div class="doc-buttons">
-                        <a href="{{ url_for('ver_documento', tipo='constancia_cvu') }}" target="_blank" class="btn-preview">
-                            Previsualizar
-                        </a>
-                        <form action="{{ url_for('enviar_documento', tipo='constancia_cvu') }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar a Desarrollo Académico para firma?');" style="border:none; font-family:inherit;">
                                 Enviar
                             </button>
                         </form>
@@ -99,6 +72,7 @@
                         <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
                             Previsualizar
                         </a>
+
                         <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
                             Descargar
                         </a>
