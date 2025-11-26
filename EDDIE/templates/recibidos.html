@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recibidos - EDDI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 400px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .input-pass { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        .input-reason { width: 100%; height: 100px; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; resize: none; font-family: inherit; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        .btn-confirm { background: #34a853; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-reject-confirm { background: #d93025; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-cancel { background: #ccc; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="icon-container" id="menu-toggle-btn"><span class="material-icons">menu</span></div>
+        <div class="logo-text">EDDI</div>
+        <div class="icon-container"><span class="material-icons">account_circle</span></div>
+    </header>
+
+    <div id="sidebar" class="sidebar show">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link">Inicio</a>
+        <a href="{{ url_for('recibidos') }}" class="sidebar-link active">Recibidos</a>
+        <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
+    </div>
+
+    <main class="main-content-fixed"> 
+        <div class="docs-container">
+            <h2>Bandeja de Entrada</h2>
+            <p class="subtitle">Documentos pendientes de firma.</p>
+            <div class="docs-list">
+                {% if solicitudes %}
+                    {% for sol in solicitudes %}
+                    <div class="doc-item">
+                        <div style="display:flex; flex-direction:column;">
+                            <span class="doc-name">{% if sol.tipo_documento == 'constancia_rh' %}Constancia de Servicios (RH){% endif %}</span>
+                            <span style="font-size: 12px; color: #666; margin-top: 5px;">
+                                <b>Solicitante:</b> {{ sol.nombre }} {{ sol.apellidos }} <br>
+                                <b>Fecha:</b> {{ sol.fecha_solicitud }}
+                            </span>
+                        </div>
+                        <div class="doc-buttons">
+                            <a href="{{ url_for('ver_documento', tipo=sol.tipo_documento, id_solicitud=sol.id_solicitud) }}" target="_blank" class="btn-preview">Ver</a>
+                            
+                            <button class="btn-download" style="background-color: #d93025; color: white; margin-right: 5px;" onclick="abrirModalRechazo('{{ sol.id_solicitud }}')">Rechazar</button>
+                            
+                            <button class="btn-download" style="background-color: #34a853; color: white;" onclick="abrirModalFirma('{{ sol.id_solicitud }}')">Firmar</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="docs-list-placeholder"><p style="color: #666; font-style: italic;">No tienes documentos pendientes.</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <div id="modalFirma" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Confirmar Firma</h3>
+            <p style="font-size: 14px; color: #666;">Ingrese contraseña para firmar.</p>
+            <form id="formFirma" action="" method="POST">
+                <input type="password" name="password" placeholder="Contraseña" required class="input-pass">
+                <div class="modal-buttons">
+                    <button type="button" onclick="cerrarModal('modalFirma')" class="btn-cancel">Cancelar</button>
+                    <button type="submit" class="btn-confirm" onclick="recargarDespuesDeDescarga()">Firmar y Descargar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalRechazo" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color: #d93025;">Rechazar Documento</h3>
+            <p style="font-size: 14px; color: #666;">Escriba la razón por la cual se rechaza este documento.</p>
+            <form id="formRechazo" action="" method="POST">
+                <textarea name="motivo" class="input-reason" placeholder="Ej: Faltan datos en el perfil, la antigüedad no coincide..." required></textarea>
+                <div class="modal-buttons">
+                    <button type="button" onclick="cerrarModal('modalRechazo')" class="btn-cancel">Cancelar</button>
+                    <button type="submit" class="btn-reject-confirm">Confirmar Rechazo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('menu-toggle-btn').addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });
+
+        // Abrir Modal Firma
+        function abrirModalFirma(id) {
+            document.getElementById('formFirma').action = "/firmar_solicitud/" + id;
+            document.getElementById('modalFirma').style.display = 'flex';
+        }
+        
+        // Abrir Modal Rechazo
+        function abrirModalRechazo(id) {
+            document.getElementById('formRechazo').action = "/rechazar_solicitud/" + id;
+            document.getElementById('modalRechazo').style.display = 'flex';
+        }
+
+        // Cerrar Modal (Genérico)
+        function cerrarModal(idModal) { document.getElementById(idModal).style.display = 'none'; }
+        
+        function recargarDespuesDeDescarga() { setTimeout(function() { window.location.reload(); }, 1500); cerrarModal('modalFirma'); }
+    </script>
+</body>
+</html>

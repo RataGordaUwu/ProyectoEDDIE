@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDDI - Panel de Docente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="icon-container" id="menu-toggle-btn">
+            <span class="material-icons">menu</span>
+        </div>
+        <div class="logo-text">EDDI</div>
+        <div class="icon-container">
+            <span class="material-icons">account_circle</span>
+        </div>
+    </header>
+
+    <div id="sidebar" class="sidebar show">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link active">Inicio</a>
+
+            {% if session['rol'] == 'docente' %}
+                <a href="{{ url_for('documentos_denegados') }}" class="sidebar-link">Documentos Denegados</a>
+                <a href="{{ url_for('generar_documentos') }}" class="sidebar-link">Generar Documentos</a>
+                <a href="#" class="sidebar-link">Documentos Firmados</a>
+            {% endif %}
+
+            {% if session['rol'] == 'jefe' %}
+                <a href="{{ url_for('recibidos') }}" class="sidebar-link">Recibidos</a>
+                <a href="#" class="sidebar-link">Documentos Firmados</a>
+            {% endif %}
+        </div>
+
+    <main class="main-content-fixed">
+        <div class="welcome-card">
+            <div class="profile-icon-large">
+                <span class="material-icons" style="font-size: 64px; color: #4285f4;">account_circle</span>
+            </div>
+            
+            <h1>Bienvenido, {{ docente.nombre }}</h1>
+            <p class="info-text">Código: {{ docente.id_docente }}</p>
+            <p class="info-text">Institución: {{ docente.nombre_institucion }}</p>
+        </div>
+    </main>
+
+    <script>
+        const menuBtn = document.getElementById('menu-toggle-btn');
+        const sidebar = document.getElementById('sidebar');
+
+        // Solo funcionalidad visual para ocultar/mostrar si el usuario quiere
+        menuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+        });
+    </script>
+
+</body>
+</html>

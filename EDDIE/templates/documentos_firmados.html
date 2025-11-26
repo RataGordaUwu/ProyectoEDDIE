@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentos Firmados - EDDI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="icon-container" id="menu-toggle-btn"><span class="material-icons">menu</span></div>
+        <div class="logo-text">EDDI</div>
+        <div class="icon-container"><span class="material-icons">account_circle</span></div>
+    </header>
+
+    <div id="sidebar" class="sidebar show">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link">Inicio</a>
+        {% if session['rol'] == 'docente' %}
+            <a href="{{ url_for('generar_documentos') }}" class="sidebar-link">Generar Documentos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link active">Documentos Firmados</a>
+        {% endif %}
+        {% if session['rol'] == 'jefe' %}
+            <a href="{{ url_for('documentos_denegados') }}" class="sidebar-link">Documentos Denegados</a>
+            <a href="{{ url_for('recibidos') }}" class="sidebar-link">Recibidos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link active">Documentos Firmados</a>
+        {% endif %}
+    </div>
+
+    <main class="main-content-fixed"> 
+        <div class="docs-container">
+            <h2>Documentos Firmados</h2>
+            <p class="subtitle">Historial de documentos aprobados.</p>
+            <div class="docs-list">
+                {% if documentos %}
+                    {% for doc in documentos %}
+                    <div class="doc-item">
+                        <div style="display:flex; flex-direction:column;">
+                            <span class="doc-name">{% if doc.tipo_documento == 'constancia_rh' %}Constancia de Servicios (RH){% endif %}</span>
+                            <span style="font-size: 12px; color: #34a853; margin-top: 5px; font-weight: bold;">
+                                <span class="material-icons" style="font-size: 12px; vertical-align: middle;">check_circle</span>
+                                Firmado el: {{ doc.fecha_firma }}
+                            </span>
+                        </div>
+                        <div class="doc-buttons">
+                            <a href="{{ url_for('ver_documento', tipo=doc.tipo_documento, id_solicitud=doc.id_solicitud) }}" target="_blank" class="btn-preview">Ver</a>
+                            <a href="{{ url_for('descargar_documento', tipo=doc.tipo_documento, id_solicitud=doc.id_solicitud) }}" class="btn-download">Descargar</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="docs-list-placeholder"><p style="color: #666; font-style: italic;">Aún no tienes documentos firmados.</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('menu-toggle-btn').addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });
+    </script>
+</body>
+</html>

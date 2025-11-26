@@ -1,0 +1,98 @@
+/* Reseteo básico y estilos globales */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Tarjeta del formulario */
+.login-card {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Títulos */
+.login-card h1 {
+    color: #202124;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.login-card h2 {
+    color: #202124;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* Grupos de inputs */
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #3c4043;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 4px;
+    outline: none;
+    font-family: inherit;
+}
+
+/* Input de usuario (Fondo azul claro) */
+.input-user {
+    background-color: #e8f0fe;
+    border: 1px solid transparent;
+    color: #202124;
+}
+
+/* Input de contraseña (Borde negro grueso) */
+.password-wrapper {
+    position: relative;
+}
+
+.input-password {
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    color: #202124;
+    padding-right: 40px;
+}
+
+
+/* Botón */
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1a73e8;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}

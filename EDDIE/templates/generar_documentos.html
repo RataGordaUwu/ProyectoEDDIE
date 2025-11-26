@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Documentos - EDDI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="icon-container" id="menu-toggle-btn">
+            <span class="material-icons">menu</span>
+        </div>
+        <div class="logo-text">EDDI</div>
+        <div class="icon-container">
+            <span class="material-icons">account_circle</span>
+        </div>
+    </header>
+
+    <div id="sidebar" class="sidebar show">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link">Inicio</a>
+        
+        {% if session['rol'] == 'docente' %}
+            <a href="{{ url_for('generar_documentos') }}" class="sidebar-link active">Generar Documentos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
+            <a href="{{ url_for('documentos_denegados') }}" class="sidebar-link">Documentos Denegados</a>
+        {% endif %}
+
+        {% if session['rol'] == 'jefe' %}
+            <a href="{{ url_for('recibidos') }}" class="sidebar-link">Recibidos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
+        {% endif %}
+    </div>
+
+    <main class="main-content-fixed"> 
+        <div class="docs-container">
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div style="background-color: #e8f0fe; color: #1a73e8; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #1a73e8;">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <h2>Generar Documentos</h2>
+            <p class="subtitle">Listado de documentos disponibles para descarga o trámite.</p>
+
+            <h3 class="section-title">Actividades de docencia</h3>
+            <div class="docs-list">
+                
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de servicios (RH)</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Carta de Exclusividad Laboral</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            
+            <h3 class="section-title">Documentos de requisito</h3>
+            <div class="docs-list-placeholder">
+                <p style="color: #666; font-style: italic;">No hay documentos disponibles en esta sección.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('menu-toggle-btn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+    </script>
+
+</body>
+</html>

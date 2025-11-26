@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDDI Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+
+    <div class="login-card">
+        <h1>EDDI</h1>
+        <h2>Bienvenido a EDDI</h2>
+
+        <form action="/" method="POST">
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div style="color: red; margin-bottom: 10px;">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="input-group">
+                <label for="usuario">Código de usuario</label>
+                <input type="text" id="usuario" name="usuario" class="input-field input-user" placeholder="Escribe tu numero de control" required>
+            </div>
+
+            <div class="input-group">
+                <label for="contrasena">Contraseña</label>
+                <input type="password" id="contrasena" name="contrasena" class="input-field input-password" required>
+            </div>
+
+            <button type="submit" class="login-button">Iniciar sesión</button>
+        
+        </form>
+    </div>
+
+</body>
+</html>

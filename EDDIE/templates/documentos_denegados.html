@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentos Denegados - EDDI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="icon-container" id="menu-toggle-btn"><span class="material-icons">menu</span></div>
+        <div class="logo-text">EDDI</div>
+        <div class="icon-container"><span class="material-icons">account_circle</span></div>
+    </header>
+
+    <div id="sidebar" class="sidebar show">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link">Inicio</a>
+        
+        {% if session['rol'] == 'docente' %}
+            <a href="{{ url_for('generar_documentos') }}" class="sidebar-link">Generar Documentos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
+            <a href="{{ url_for('documentos_denegados') }}" class="sidebar-link active">Documentos Denegados</a>
+        {% endif %}
+
+        {% if session['rol'] == 'jefe' %}
+            <a href="{{ url_for('recibidos') }}" class="sidebar-link">Recibidos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
+        {% endif %}
+    </div>
+
+    <main class="main-content-fixed"> 
+        <div class="docs-container">
+            <h2>Documentos Denegados</h2>
+            <p class="subtitle">Historial de solicitudes rechazadas y sus motivos.</p>
+            
+            <div class="docs-list">
+                {% if documentos %}
+                    {% for doc in documentos %}
+                    <div class="doc-item" style="border-left: 5px solid #d93025;"> <div style="display:flex; flex-direction:column; width: 100%;">
+                            <span class="doc-name">
+                                {% if doc.tipo_documento == 'constancia_rh' %}Constancia de Servicios (RH){% endif %}
+                            </span>
+                            
+                            <div style="margin-top: 10px; background-color: #fce8e6; padding: 10px; border-radius: 4px;">
+                                <span style="font-size: 13px; color: #d93025; font-weight: bold;">Motivo del rechazo:</span>
+                                <p style="font-size: 14px; color: #333; margin-top: 5px;">{{ doc.motivo_rechazo }}</p>
+                            </div>
+
+                            <span style="font-size: 12px; color: #666; margin-top: 8px;">
+                                Solicitado el: {{ doc.fecha_solicitud }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="docs-list-placeholder">
+                        <p style="color: #666; font-style: italic;">No tienes documentos rechazados.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('menu-toggle-btn').addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });
+    </script>
+
+</body>
+</html>
