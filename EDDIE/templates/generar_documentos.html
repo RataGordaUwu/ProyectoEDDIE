@@ -65,6 +65,21 @@
                     </div>
                 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
                 <div class="doc-item">
                     <span class="doc-name">Constancia de Actualización de CVU</span>
                     <div class="doc-buttons">
@@ -116,6 +131,21 @@
                         </a>
                     </div>
                 </div>
+
+            <div class="doc-item">
+                <span class="doc-name">Evaluaciones Docentes</span>
+                <div class="doc-buttons">
+                    <a href="{{ url_for('ver_documento', tipo='constancia_evaluacion') }}" target="_blank" class="btn-preview">
+                        Previsualizar
+                    </a>
+                    
+                    <form action="{{ url_for('enviar_documento', tipo='constancia_evaluacion') }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-download" onclick="return confirm('¿Enviar evaluaciones a su Jefe Inmediato para firma?');" style="border:none; font-family:inherit;">
+                            Enviar
+                        </button>
+                    </form>
+                </div>
+            </div>
 
             
             

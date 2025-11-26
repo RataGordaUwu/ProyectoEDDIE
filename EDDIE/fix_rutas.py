@@ -12,6 +12,8 @@ cursor.execute("""
     WHERE rol = 'jefe'
 """)
 
+
+
 conn.commit()
 conn.close()
 print("Rutas actualizadas a firma.png y sello.png")

@@ -484,3 +484,118 @@ def generar_constancia_liberacion_actividades(docente, liberaciones):
     doc.build(story)
     buffer.seek(0)
     return buffer
+
+# ==========================================
+# 10. CONSTANCIA DE EVALUACIÓN DOCENTE (FIRMABLE)
+# ==========================================
+# ==========================================
+# 10. CONSTANCIA DE EVALUACIÓN DOCENTE (FIRMABLE)
+# ==========================================
+def generar_constancia_evaluacion(docente, evaluaciones, firmante, datos_firma=None):
+    # --- CORRECCIÓN IMPORTANTE: Convertir a dict para usar .get() sin errores ---
+    docente = dict(docente)
+    firmante = dict(firmante)
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
+    
+    s_header = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
+    s_title = ParagraphStyle('Title', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14, spaceAfter=20)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
+    s_firm = ParagraphStyle('Firm', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=11, leading=14)
+    
+    story = []
+    
+    # Encabezado (Ahora .get() funcionará correctamente)
+    depto_nombre = docente.get('departamento', 'Departamento Académico')
+    story.append(Paragraph(f"Instituto Tecnológico de Culiacán<br/>{depto_nombre}<br/>Oficio No. EV-2024/001", s_header))
+    story.append(Spacer(1, 1.5*cm))
+    
+    story.append(Paragraph("CONSTANCIA DE EVALUACIÓN DOCENTE", s_title))
+    story.append(Spacer(1, 1*cm))
+
+    nombre_docente = f"{docente['nombre']} {docente['apellidos']}"
+    texto = f"""
+    El (la) que suscribe, hace CONSTAR que el (la) C. <b>{nombre_docente}</b>, docente adscrito a este departamento, 
+    ha cumplido con el proceso de Evaluación al Desempeño Docente correspondiente al año 2024, obteniendo los siguientes resultados:
+    """
+    story.append(Paragraph(texto, s_body))
+    story.append(Spacer(1, 1*cm))
+
+    # Tabla de Resultados
+    data = [['Periodo', 'Tipo de Evaluación', 'Calificación', 'Nivel']]
+    
+    if evaluaciones:
+        for ev in evaluaciones:
+            # Convertimos también cada fila de evaluación a dict o accedemos por índice si es necesario
+            # sqlite3.Row permite acceso por nombre ev['campo']
+            periodo = "Ene-Jun 2024" if ev['id_periodo'] == 1 else "Ago-Dic 2024"
+            
+            # Lógica visual para el tipo de evaluación
+            if ev['id_tipo_evaluacion'] == 1:
+                tipo = "Departamental"
+            elif ev['id_tipo_evaluacion'] == 3:
+                tipo = "Autoevaluación"
+            else:
+                tipo = "Posgrado"
+                
+            calif = ev['calificacion_global']
+            
+            # Determinar nivel "SUFICIENTE"
+            nivel = "SUFICIENTE" # Por defecto para el demo
+            try:
+                if float(calif) < 3.7: # Criterio ejemplo numérico
+                    nivel = "INSUFICIENTE"
+            except:
+                pass # Si es texto como "Excelente", se queda en SUFICIENTE
+
+            data.append([periodo, tipo, calif, nivel])
+    else:
+        data.append(["2024", "Sin registros", "N/A", "N/A"])
+
+    t = Table(data, colWidths=[4*cm, 5*cm, 3*cm, 4*cm])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), '#e0e0e0'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 1, 'black'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    story.append(t)
+    
+    story.append(Spacer(1, 2*cm))
+    story.append(Paragraph("Se extiende la presente para los fines del Programa de Estímulos al Desempeño.", s_body))
+    
+    # --- SECCIÓN DE FIRMA ---
+    story.append(Spacer(1, 2.5*cm))
+    story.append(Paragraph("A T E N T A M E N T E", s_firm))
+
+    # Insertar imagen de firma si existe
+    if datos_firma and datos_firma.get('ruta_firma') and os.path.exists(datos_firma['ruta_firma']):
+        try:
+            img_firma = RLImage(datos_firma['ruta_firma'], width=4*cm, height=2*cm)
+            if datos_firma.get('ruta_sello') and os.path.exists(datos_firma['ruta_sello']):
+                img_sello = RLImage(datos_firma['ruta_sello'], width=3*cm, height=3*cm)
+                data_tabla = [[Spacer(1,1), img_firma, img_sello]]
+            else:
+                data_tabla = [[Spacer(1,1), img_firma, Spacer(1,1)]]
+                
+            t_firma = Table(data_tabla, colWidths=[3*cm, 5*cm, 4*cm])
+            t_firma.setStyle(TableStyle([('ALIGN', (1,0), (1,0), 'CENTER'), ('VALIGN', (0,0), (-1,-1), 'MIDDLE')]))
+            story.append(t_firma)
+        except:
+            story.append(Spacer(1, 2*cm))
+    else:
+        story.append(Spacer(1, 2*cm)) 
+
+    # Datos del Firmante
+    nombre_firmante = f"{firmante['nombre']} {firmante['apellidos']}"
+    puesto_firmante = firmante['nombre_puesto']
+    
+    story.append(Paragraph(f"<b>{nombre_firmante}</b><br/>{puesto_firmante}", s_firm))
+    story.append(Spacer(1, 1*cm))
+    story.append(Paragraph("Excelencia en Educación Tecnológica®", ParagraphStyle('Slogan', alignment=TA_CENTER, fontSize=9, fontName='Helvetica-Oblique')))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer

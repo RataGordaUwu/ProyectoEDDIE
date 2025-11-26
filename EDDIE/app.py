@@ -13,7 +13,8 @@ from pdf_creator import (
     generar_constancia_participacion_planes, # <--- Faltaba
     generar_oficio_licencia,                # <--- Faltaba
     generar_evidencia_grado_firmable,
-    generar_constancia_liberacion_actividades
+    generar_constancia_liberacion_actividades,
+    generar_constancia_evaluacion
 )
 
 app = Flask(__name__)
@@ -259,36 +260,35 @@ def enviar_documento(tipo):
     solicitante_id = session['user_id']
     destinatario_id = None
     
-    if tipo == 'constancia_rh':
+    # --- LOGICA DE DESTINATARIOS ---
+    if tipo == 'constancia_rh' or tipo == 'oficio_licencia': # Licencias también van a RH
         destinatario_id = buscar_id_destinatario_por_puesto('Recursos Humanos')
-    elif tipo in ['constancia_desarrollo', 'constancia_cvu']: 
-        destinatario_id = buscar_id_destinatario_por_puesto('Desarrollo Académico')
     
+    elif tipo in ['constancia_desarrollo', 'constancia_cvu', 'constancia_grado']: 
+        destinatario_id = buscar_id_destinatario_por_puesto('Desarrollo Académico')
+        
+    elif tipo == 'constancia_evaluacion':
+        # Aquí usamos la lógica dinámica: ¿Es su jefe de Depto o la Jefa DEPI?
+        jefe_data = obtener_jefe_inmediato(solicitante_id)
+        if jefe_data:
+            destinatario_id = jefe_data['id_docente']
+    
+    # --- GUARDADO EN BD (Igual que antes) ---
     if destinatario_id:
+        # ... (código existente de verificación e insert) ...
+        # Solo asegúrate de que este bloque maneje el 'destinatario_id' que acabamos de encontrar
         conn = get_db_connection()
         cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT id_solicitud FROM SolicitudesDocumentos 
-            WHERE id_docente_solicitante = ? 
-            AND tipo_documento = ? 
-            AND estado = 'Pendiente'
-        """, (solicitante_id, tipo))
-        existe = cursor.fetchone()
-
-        if existe:
-            flash("Ya tienes una solicitud pendiente de este documento.")
+        cursor.execute("SELECT id_solicitud FROM SolicitudesDocumentos WHERE id_docente_solicitante = ? AND tipo_documento = ? AND estado = 'Pendiente'", (solicitante_id, tipo))
+        if cursor.fetchone():
+            flash("Ya tienes una solicitud pendiente.")
         else:
-            cursor.execute("""
-                INSERT INTO SolicitudesDocumentos (id_docente_solicitante, id_usuario_destinatario, tipo_documento, estado)
-                VALUES (?, ?, ?, 'Pendiente')
-            """, (solicitante_id, destinatario_id, tipo))
+            cursor.execute("INSERT INTO SolicitudesDocumentos (id_docente_solicitante, id_usuario_destinatario, tipo_documento, estado) VALUES (?, ?, ?, 'Pendiente')", (solicitante_id, destinatario_id, tipo))
             conn.commit()
-            flash("Documento enviado correctamente a revisión.")
-        
+            flash("Documento enviado a revisión.")
         conn.close()
     else:
-        flash("Error: No se encontró destinatario.")
+        flash("Error: No se encontró destinatario para este trámite.")
         
     return redirect(url_for('generar_documentos'))
 
@@ -374,6 +374,19 @@ def ver_documento(tipo):
     elif tipo == 'constancia_liberacion':
         datos_liberacion = obtener_datos_liberacion(target_user_id)
         pdf_buffer = generar_constancia_liberacion_actividades(datos_docente, datos_liberacion)
+
+    # --- Dentro de ver_documento y descargar_documento ---
+    
+    elif tipo == 'constancia_evaluacion':
+        evaluaciones = obtener_datos_evaluaciones(target_user_id)
+        # Buscamos quién debe firmar (el jefe inmediato del docente)
+        datos_firmante = obtener_jefe_inmediato(target_user_id) 
+        
+        # Si no se encuentra firmante (raro), ponemos datos dummy para que no rompa
+        if not datos_firmante:
+            datos_firmante = {"nombre": "JEFE", "apellidos": "DEPARTAMENTO", "nombre_puesto": "Jefe Inmediato"}
+            
+        pdf_buffer = generar_constancia_evaluacion(datos_docente, evaluaciones, datos_firmante, datos_firma)
     
     else:
         return "Error: Tipo de documento no válido"
@@ -448,6 +461,19 @@ def descargar_documento(tipo):
     elif tipo == 'constancia_liberacion':
         datos_liberacion = obtener_datos_liberacion(target_user_id)
         pdf_buffer = generar_constancia_liberacion_actividades(datos_docente, datos_liberacion)
+
+    # --- Dentro de ver_documento y descargar_documento ---
+    
+    elif tipo == 'constancia_evaluacion':
+        evaluaciones = obtener_datos_evaluaciones(target_user_id)
+        # Buscamos quién debe firmar (el jefe inmediato del docente)
+        datos_firmante = obtener_jefe_inmediato(target_user_id) 
+        
+        # Si no se encuentra firmante (raro), ponemos datos dummy para que no rompa
+        if not datos_firmante:
+            datos_firmante = {"nombre": "JEFE", "apellidos": "DEPARTAMENTO", "nombre_puesto": "Jefe Inmediato"}
+            
+        pdf_buffer = generar_constancia_evaluacion(datos_docente, evaluaciones, datos_firmante, datos_firma)
     
     else:
         return "Error: Tipo de documento no válido"
@@ -458,6 +484,7 @@ def descargar_documento(tipo):
 
 @app.route('/firmar_solicitud/<int:id_solicitud>', methods=['POST'])
 def firmar_solicitud(id_solicitud):
+    # ... (código de validación de usuario y contraseña igual que antes) ...
     if 'user_id' not in session or session['rol'] != 'jefe':
         return "No autorizado", 403
 
@@ -486,7 +513,7 @@ def firmar_solicitud(id_solicitud):
     """, (fecha_firma, id_solicitud))
     conn.commit()
 
-    # Generar PDF Firmado
+    # --- GENERACIÓN DEL PDF FIRMADO ---
     target_id = solicitud['id_docente_solicitante']
     datos_docente = obtener_datos_docente_completo(target_id)
     
@@ -498,23 +525,50 @@ def firmar_solicitud(id_solicitud):
     tipo_doc = solicitud['tipo_documento']
     pdf_buffer = None
 
+    # ... (bloques existentes para constancia_rh, desarrollo, cvu, etc.) ...
+
     if tipo_doc == 'constancia_rh':
         datos_firmante = obtener_datos_firmante_rh()
         pdf_buffer = generar_constancia_rh(datos_docente, datos_firmante, datos_firma_visual)
+    
     elif tipo_doc == 'constancia_desarrollo':
         datos_firmante = obtener_datos_firmante_desarrollo()
         pdf_buffer = generar_constancia_desarrollo(datos_docente, datos_firmante, datos_firma_visual)
+        
     elif tipo_doc == 'constancia_cvu':
         datos_firmante = obtener_datos_firmante_desarrollo()
         pdf_buffer = generar_constancia_cvu(datos_docente, datos_firmante, datos_firma_visual)
+        
     elif tipo_doc == 'constancia_grado':
+        # Nota: constancia_grado normalmente no se firma por jefe en este flujo, pero si se requiere:
         datos_firmante = obtener_datos_firmante_desarrollo()
         datos_grado = obtener_datos_grado(target_id)
         pdf_buffer = generar_constancia_grado(datos_docente, datos_grado, datos_firmante, datos_firma_visual)
-    elif tipo_doc == 'oficio_licencia': # Agregado por si acaso
+        
+    elif tipo_doc == 'oficio_licencia':
         datos_firmante = obtener_datos_firmante_rh()
         datos_licencia = obtener_datos_licencia(target_id)
         pdf_buffer = generar_oficio_licencia(datos_docente, datos_licencia, datos_firmante, datos_firma_visual)
+
+    # --- AQUÍ ESTABA EL FALTANTE ---
+    elif tipo_doc == 'constancia_evaluacion':
+        evaluaciones = obtener_datos_evaluaciones(target_id)
+        # El firmante es el usuario logueado actual (el jefe)
+        datos_firmante = obtener_datos_docente_completo(user_id) 
+        # Aseguramos que tenga el campo nombre_puesto (viene de PuestosAdministrativos)
+        # Si obtener_datos_docente_completo no trae el puesto administrativo, lo buscamos:
+        cursor.execute("""
+            SELECT nombre_puesto FROM PuestosAdministrativos pa
+            JOIN AsignacionPuestos ap ON pa.id_puesto = ap.id_puesto
+            WHERE ap.id_docente = ? AND ap.fecha_fin IS NULL
+        """, (user_id,))
+        puesto_res = cursor.fetchone()
+        
+        firmante_dict = dict(datos_firmante)
+        firmante_dict['nombre_puesto'] = puesto_res['nombre_puesto'] if puesto_res else "JEFE ENCARGADO"
+        
+        pdf_buffer = generar_constancia_evaluacion(datos_docente, evaluaciones, firmante_dict, datos_firma_visual)
+    # -------------------------------
 
     conn.close()
 
@@ -586,6 +640,63 @@ def obtener_datos_liberacion(user_id):
     datos = cursor.fetchall()
     conn.close()
     return datos
+
+# --- HELPER: OBTENER EVALUACIONES ---
+def obtener_datos_evaluaciones(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Obtenemos evaluaciones de los dos periodos de 2024 (IDs 1 y 2 en PeriodosEscolares)
+    query = """
+        SELECT ed.*, te.nombre_evaluacion 
+        FROM EvaluacionesDocentes ed
+        JOIN TiposEvaluacion te ON ed.id_tipo_evaluacion = te.id_tipo_evaluacion
+        WHERE ed.id_docente = ? AND ed.id_periodo IN (1, 2)
+        ORDER BY ed.id_periodo ASC
+    """
+    cursor.execute(query, (user_id,))
+    datos = cursor.fetchall()
+    conn.close()
+    return datos
+
+# --- HELPER: DETERMINAR JEFE A CARGO (Destinatario) ---
+def obtener_jefe_inmediato(docente_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 1. Verificamos el departamento del docente
+    cursor.execute("SELECT id_departamento FROM Docentes WHERE id_docente = ?", (docente_id,))
+    res = cursor.fetchone()
+    id_depto = res['id_departamento'] if res else 1
+    
+    # 2. Si es DEPI (ID 4), buscamos al Jefe DEPI. Si es otro, buscamos al Jefe de ese Depto.
+    # Usamos LIKE en el puesto para ser flexibles
+    
+    puesto_clave = '%Estudios de Posgrado%' if id_depto == 4 else '%Jefe de Departamento%'
+    
+    query_jefe = """
+        SELECT d.id_docente, d.nombre, d.apellidos, pa.nombre_puesto 
+        FROM AsignacionPuestos ap
+        JOIN PuestosAdministrativos pa ON ap.id_puesto = pa.id_puesto
+        JOIN Docentes d ON ap.id_docente = d.id_docente
+        WHERE pa.nombre_puesto LIKE ? AND ap.fecha_fin IS NULL AND pa.id_departamento = ?
+    """
+    # Intentamos buscar jefe específico del departamento
+    cursor.execute(query_jefe, (puesto_clave, id_depto))
+    jefe = cursor.fetchone()
+    
+    # Fallback: Si no hay jefe específico, mandamos al genérico "Jefe de Departamento Académico" (ID 1 en Puestos)
+    if not jefe:
+        cursor.execute("""
+            SELECT d.id_docente, d.nombre, d.apellidos, pa.nombre_puesto 
+            FROM AsignacionPuestos ap
+            JOIN PuestosAdministrativos pa ON ap.id_puesto = pa.id_puesto
+            JOIN Docentes d ON ap.id_docente = d.id_docente
+            WHERE pa.nombre_puesto LIKE '%Jefe de Departamento%' LIMIT 1
+        """)
+        jefe = cursor.fetchone()
+        
+    conn.close()
+    return jefe
 
 @app.route('/logout')
 def logout():
