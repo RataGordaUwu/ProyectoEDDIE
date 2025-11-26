@@ -329,16 +329,157 @@ def generar_oficio_licencia(docente, licencia, firmante, datos_firma=None):
     story.append(Paragraph(texto_cuerpo.strip(), s_body))
     story.append(Spacer(1, 2.5*cm))
 
-    story.append(Paragraph("A T E N T A M E N T E", s_firm))
-    story.append(Spacer(1, 2.5*cm)) 
-    
-    bloque_firma = f"<b>{firmante['nombre']} {firmante['apellidos']}</b><br/>{firmante['nombre_puesto'].upper()}"
-    story.append(Paragraph(bloque_firma, s_firm))
-
-    story.append(Spacer(1, 2*cm))
-    story.append(Paragraph("C.c.p. Subdirección Académica.<br/>C.c.p. Expediente.", s_cc))
-    story.append(Spacer(1, 1*cm))
     story.append(Paragraph("Excelencia en Educación Tecnológica®", s_slogan))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+# ==========================================
+# 8. EVIDENCIA DE GRADO (VALIDACIÓN FIRMABLE)
+# ==========================================
+def generar_evidencia_grado_firmable(docente, grado_info):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
+    
+    # Estilos
+    s_header = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
+    s_title = ParagraphStyle('Title', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14, spaceAfter=20)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
+    s_leyenda = ParagraphStyle('Leyenda', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=12, leading=14, spaceBefore=30)
+    s_firma_linea = ParagraphStyle('FirmaLinea', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica', fontSize=11, leading=14)
+    s_firma_nombre = ParagraphStyle('FirmaNombre', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=11, leading=14)
+    s_slogan = ParagraphStyle('Slogan', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Oblique', fontSize=9)
+
+    story = []
+    
+    # Encabezado Institucional
+    story.append(Paragraph("Instituto Tecnológico de Culiacán<br/>Subdirección Académica<br/>Depto. de Desarrollo Académico", s_header))
+    story.append(Spacer(1, 1.5*cm))
+    
+    # Título del Documento
+    story.append(Paragraph("VALIDACIÓN DE EVIDENCIA DE GRADO ACADÉMICO", s_title))
+    story.append(Spacer(1, 1*cm))
+
+    # Cuerpo del documento
+    nombre_docente = f"{docente['nombre']} {docente['apellidos']}"
+    grado_titulo = grado_info.get('titulo', 'GRADO ACADÉMICO').upper()
+    
+    texto_intro = f"""
+    Por medio del presente, el (la) C. <b>{nombre_docente}</b>, docente adscrito(a) a este Instituto, hace entrega de la documentación probatoria correspondiente a su grado académico de:
+    """
+    story.append(Paragraph(texto_intro, s_body))
+    story.append(Spacer(1, 0.5*cm))
+    
+    # Mostrar el Grado
+    story.append(Paragraph(f"<b>{grado_titulo}</b>", ParagraphStyle('Grado', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14)))
+    story.append(Spacer(1, 1*cm))
+
+    # Detalle de la evidencia presentada
+    if grado_info.get('tipo_evidencia') == 'Acta de Examen':
+        texto_evidencia = f"""
+        <b>Documento presentado:</b> Copia del Acta de Examen de Grado.<br/>
+        <b>Nombre del Trabajo:</b> "{grado_info.get('nombre_trabajo', 'N/A')}"<br/>
+        <b>Fecha de Examen:</b> {grado_info.get('fecha_examen', 'N/A')}<br/>
+        <br/>
+        <i>* Se presenta Acta de Examen por tener una antigüedad menor a un año de su obtención, en cumplimiento con los lineamientos vigentes.</i>
+        """
+    else:
+        # Cédula
+        texto_evidencia = f"""
+        <b>Documento presentado:</b> Cédula Profesional Electrónica.<br/>
+        <b>Número de Registro:</b> {grado_info.get('cedula', 'EN TRÁMITE')}<br/>
+        <b>Fuente:</b> Dirección General de Profesiones (SEP) / www.cedulaprofesional.sep.gob.mx
+        """
+    
+    story.append(Paragraph(texto_evidencia, s_body))
+    story.append(Spacer(1, 2.5*cm))
+
+    # --- SECCIÓN DE FIRMA (LO QUE PIDIÓ EL USUARIO) ---
+    
+    # Leyenda Obligatoria
+    story.append(Paragraph("ES COPIA FIEL DEL ORIGINAL", s_leyenda))
+    story.append(Spacer(1, 2*cm)) # Espacio para firmar físicamente
+
+    # Línea de firma
+    story.append(Paragraph("_________________________________________", s_firma_linea))
+    story.append(Paragraph(f"<b>{nombre_docente}</b>", s_firma_nombre))
+    story.append(Paragraph("PERSONA SOLICITANTE", s_firma_linea))
+    
+    story.append(Spacer(1, 2*cm))
+    story.append(Paragraph("Excelencia en Educación Tecnológica®", s_slogan))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+# ==========================================
+# 9. CONSTANCIA DE LIBERACIÓN DE ACTIVIDADES
+# ==========================================
+def generar_constancia_liberacion_actividades(docente, liberaciones):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=LETTER, rightMargin=2.5*cm, leftMargin=2.5*cm, topMargin=2*cm, bottomMargin=2*cm)
+    
+    s_header = ParagraphStyle('HeaderRight', parent=styles['Normal'], alignment=TA_RIGHT, fontName='Helvetica-Bold', fontSize=10, leading=14)
+    s_title = ParagraphStyle('Title', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=14, spaceAfter=20)
+    s_body = ParagraphStyle('Body', parent=styles['Normal'], alignment=TA_JUSTIFY, fontName='Helvetica', fontSize=11, leading=18)
+    s_status = ParagraphStyle('Status', parent=styles['Normal'], alignment=TA_CENTER, fontName='Helvetica-Bold', fontSize=16, leading=20, textColor='black')
+    
+    story = []
+    
+    # Encabezado
+    story.append(Paragraph("Instituto Tecnológico de Culiacán<br/>Departamento de Sistemas y Computación<br/>Oficio No. DSC-LIB-2024/558", s_header))
+    story.append(Spacer(1, 1.5*cm))
+    
+    # Título
+    story.append(Paragraph("CONSTANCIA DE LIBERACIÓN DE ACTIVIDADES DOCENTES", s_title))
+    story.append(Spacer(1, 1*cm))
+
+    nombre_docente = f"{docente['nombre']} {docente['apellidos']}"
+    texto_intro = f"""
+    Por medio de la presente se hace CONSTAR que el (la) C. <b>{nombre_docente}</b>, docente adscrito al Departamento de Sistemas y Computación, 
+    ha cumplido en tiempo y forma con las actividades encomendadas durante el año 2024.
+    <br/><br/>
+    A continuación se detallan los periodos evaluados y su estatus correspondiente:
+    """
+    story.append(Paragraph(texto_intro, s_body))
+    story.append(Spacer(1, 1*cm))
+
+    # Tabla de Liberaciones
+    if liberaciones:
+        data = [['Periodo', 'Fecha de Liberación', 'Estatus']]
+        for lib in liberaciones:
+            # Determinamos el periodo basado en la fecha (lógica simple para visualización)
+            fecha = lib['fecha_liberacion']
+            periodo_texto = "Enero-Junio 2024" if "2024-06" in fecha else "Agosto-Diciembre 2024"
+            data.append([periodo_texto, fecha, 'LIBERADO'])
+    else:
+        data = [['Periodo', 'Fecha de Liberación', 'Estatus'], ['2024', 'Sin registro', 'PENDIENTE']]
+
+    t = Table(data, colWidths=[6*cm, 5*cm, 4*cm])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), '#e0e0e0'),
+        ('TEXTCOLOR', (0, 0), (-1, 0), 'black'),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, 'black'),
+    ]))
+    story.append(t)
+    
+    story.append(Spacer(1, 1.5*cm))
+
+    # Estatus Final
+    story.append(Paragraph("ESTATUS FINAL DEL DOCENTE:", s_title))
+    story.append(Spacer(1, 0.5*cm))
+    story.append(Paragraph("LIBERADO(A)", s_status))
+    
+    story.append(Spacer(1, 2*cm))
+    story.append(Paragraph("Se extiende la presente para los fines administrativos y de estímulos al desempeño que correspondan.", s_body))
+    
+    # Sin firma, solo sello digital o informativo
+    story.append(Spacer(1, 2*cm))
+    story.append(Paragraph("Este documento es de carácter informativo y no requiere firma autógrafa para su descarga.", ParagraphStyle('Note', parent=styles['Normal'], fontSize=8, alignment=TA_CENTER)))
 
     doc.build(story)
     buffer.seek(0)

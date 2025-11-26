@@ -11,7 +11,9 @@ from pdf_creator import (
     generar_constancia_cvu,
     generar_constancia_grado,                # <--- Faltaba
     generar_constancia_participacion_planes, # <--- Faltaba
-    generar_oficio_licencia                  # <--- Faltaba
+    generar_oficio_licencia,                # <--- Faltaba
+    generar_evidencia_grado_firmable,
+    generar_constancia_liberacion_actividades
 )
 
 app = Flask(__name__)
@@ -357,6 +359,21 @@ def ver_documento(tipo):
         datos_firmante = obtener_datos_firmante_rh()
         datos_licencia = obtener_datos_licencia(target_user_id)
         pdf_buffer = generar_oficio_licencia(datos_docente, datos_licencia, datos_firmante, datos_firma)
+
+    # ... dentro de def ver_documento(tipo): ...
+
+    elif tipo == 'constancia_grado':
+        # Obtenemos los datos del grado (Cédula o Acta)
+        datos_grado = obtener_datos_grado(target_user_id)
+        
+        # Usamos la nueva función que creaste con el espacio para la firma del profesor.
+        # NOTA: No enviamos 'datos_firmante' ni 'datos_firma' porque este documento lo firma el solicitante.
+        pdf_buffer = generar_evidencia_grado_firmable(datos_docente, datos_grado)
+
+    # En def ver_documento(tipo):
+    elif tipo == 'constancia_liberacion':
+        datos_liberacion = obtener_datos_liberacion(target_user_id)
+        pdf_buffer = generar_constancia_liberacion_actividades(datos_docente, datos_liberacion)
     
     else:
         return "Error: Tipo de documento no válido"
@@ -420,6 +437,18 @@ def descargar_documento(tipo):
         datos_firmante = obtener_datos_firmante_rh()
         datos_licencia = obtener_datos_licencia(target_user_id)
         pdf_buffer = generar_oficio_licencia(datos_docente, datos_licencia, datos_firmante, datos_firma)
+
+    # ... dentro de def descargar_documento(tipo): ...
+
+    elif tipo == 'constancia_grado':
+        datos_grado = obtener_datos_grado(target_user_id)
+        pdf_buffer = generar_evidencia_grado_firmable(datos_docente, datos_grado)
+
+    # En def descargar_documento(tipo):
+    elif tipo == 'constancia_liberacion':
+        datos_liberacion = obtener_datos_liberacion(target_user_id)
+        pdf_buffer = generar_constancia_liberacion_actividades(datos_docente, datos_liberacion)
+    
     else:
         return "Error: Tipo de documento no válido"
 
@@ -539,6 +568,24 @@ def documentos_denegados():
     
     datos_docente = obtener_datos_docente_completo(user_id)
     return render_template('documentos_denegados.html', docente=datos_docente, documentos=documentos)
+
+# --- HELPER: LIBERACIÓN ACTIVIDADES ---
+def obtener_datos_liberacion(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Buscamos las liberaciones del año 2024 (ID actividad 20241 y 20242 creados en el insert anterior)
+    # OJO: La consulta busca por ID de docente en la tabla ActividadesAcademicas
+    query = """
+        SELECT la.fecha_liberacion, aa.estado
+        FROM LiberacionesAcademicas la
+        JOIN ActividadesAcademicas aa ON la.id_actividad_acad = aa.id_actividad_acad
+        WHERE aa.id_docente = ? AND (aa.id_actividad_acad = 20241 OR aa.id_actividad_acad = 20242)
+        ORDER BY la.fecha_liberacion ASC
+    """
+    cursor.execute(query, (user_id,))
+    datos = cursor.fetchall()
+    conn.close()
+    return datos
 
 @app.route('/logout')
 def logout():

@@ -48,7 +48,7 @@
             <h2>Generar Documentos</h2>
             <p class="subtitle">Listado de documentos disponibles para descarga o trámite.</p>
 
-            <h3 class="section-title">Actividades de docencia</h3>
+            
             <div class="docs-list">
                 
                 <div class="doc-item">
@@ -104,8 +104,22 @@
                 </div>
 
             </div>
+
+            <div class="doc-item">
+                    <span class="doc-name">Constancia de Liberación de Actividades</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_liberacion') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='constancia_liberacion') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
             
-            <h3 class="section-title">Documentos de requisito</h3>
+            
+            
             <div class="docs-list">
                 
                 <div class="doc-item">
