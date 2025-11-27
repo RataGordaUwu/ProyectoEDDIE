@@ -24,15 +24,15 @@
     </header>
 
     <div id="sidebar" class="sidebar show">
-        <a href="{{ url_for('dashboard') }}" class="sidebar-link">Inicio</a>
-        
         {% if session['rol'] == 'docente' %}
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link">Inicio</a>
             <a href="{{ url_for('generar_documentos') }}" class="sidebar-link">Generar Documentos</a>
             <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
             <a href="{{ url_for('documentos_denegados') }}" class="sidebar-link active">Documentos Denegados</a>
         {% endif %}
 
         {% if session['rol'] == 'jefe' %}
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link">Inicio</a>
             <a href="{{ url_for('recibidos') }}" class="sidebar-link">Recibidos</a>
             <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
         {% endif %}
@@ -75,39 +75,37 @@
         document.getElementById('menu-toggle-btn').addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });
     
         (function(){
-            const wrapper = document.getElementById('accountMenuWrapper');
-            if (!wrapper) return;
-            const btn = document.getElementById('accountBtn');
-            const dropdown = document.getElementById('accountDropdown');
+            const wrapper = document.getElementById('accountMenuWrapper');
+            if (!wrapper) return;
+            const btn = document.getElementById('accountBtn');
+            const dropdown = document.getElementById('accountDropdown');
 
-            btn.addEventListener('click', function(e){
-                const isOpen = !dropdown.hasAttribute('hidden');
-                if (isOpen) {
-                    dropdown.setAttribute('hidden','');
-                    btn.setAttribute('aria-expanded','false');
-                } else {
-                    dropdown.removeAttribute('hidden');
-                    btn.setAttribute('aria-expanded','true');
-                }
-                e.stopPropagation();
-            });
+            btn.addEventListener('click', function(e){
+                const isOpen = !dropdown.hasAttribute('hidden');
+                if (isOpen) {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                } else {
+                    dropdown.removeAttribute('hidden');
+                    btn.setAttribute('aria-expanded','true');
+                }
+                e.stopPropagation();
+            });
 
-            document.addEventListener('click', function(e){
-                if (!wrapper.contains(e.target)) {
-                    dropdown.setAttribute('hidden','');
-                    btn.setAttribute('aria-expanded','false');
-                }
-            });
+            document.addEventListener('click', function(e){
+                if (!wrapper.contains(e.target)) {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                }
+            });
 
-            document.addEventListener('keydown', function(e){
-                if (e.key === 'Escape') {
-                    dropdown.setAttribute('hidden','');
-                    btn.setAttribute('aria-expanded','false');
-                }
-            });
-        })();
-
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape') {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                }
+            });
+        })();
     </script>
-
 </body>
 </html>

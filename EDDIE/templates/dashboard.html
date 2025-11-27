@@ -27,19 +27,19 @@
     </header>
 
     <div id="sidebar" class="sidebar show">
+        {% if session['rol'] == 'docente' %}
             <a href="{{ url_for('dashboard') }}" class="sidebar-link active">Inicio</a>
+            <a href="{{ url_for('generar_documentos') }}" class="sidebar-link">Generar Documentos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
+            <a href="{{ url_for('documentos_denegados') }}" class="sidebar-link">Documentos Denegados</a>
+        {% endif %}
 
-            {% if session['rol'] == 'docente' %}
-                <a href="{{ url_for('documentos_denegados') }}" class="sidebar-link">Documentos Denegados</a>
-                <a href="{{ url_for('generar_documentos') }}" class="sidebar-link">Generar Documentos</a>
-                <a href="#" class="sidebar-link">Documentos Firmados</a>
-            {% endif %}
-
-            {% if session['rol'] == 'jefe' %}
-                <a href="{{ url_for('recibidos') }}" class="sidebar-link">Recibidos</a>
-                <a href="#" class="sidebar-link">Documentos Firmados</a>
-            {% endif %}
-        </div>
+        {% if session['rol'] == 'jefe' %}
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link active">Inicio</a>
+            <a href="{{ url_for('recibidos') }}" class="sidebar-link">Recibidos</a>
+            <a href="{{ url_for('documentos_firmados') }}" class="sidebar-link">Documentos Firmados</a>
+        {% endif %}
+    </div>
 
     <main class="main-content-fixed">
         <div class="welcome-card">
@@ -57,45 +57,42 @@
         const menuBtn = document.getElementById('menu-toggle-btn');
         const sidebar = document.getElementById('sidebar');
 
-
         menuBtn.addEventListener('click', function() {
             sidebar.classList.toggle('show');
         });
 
         (function(){
-            const wrapper = document.getElementById('accountMenuWrapper');
-            if (!wrapper) return;
-            const btn = document.getElementById('accountBtn');
-            const dropdown = document.getElementById('accountDropdown');
+            const wrapper = document.getElementById('accountMenuWrapper');
+            if (!wrapper) return;
+            const btn = document.getElementById('accountBtn');
+            const dropdown = document.getElementById('accountDropdown');
 
-            btn.addEventListener('click', function(e){
-                const isOpen = !dropdown.hasAttribute('hidden');
-                if (isOpen) {
-                    dropdown.setAttribute('hidden','');
-                    btn.setAttribute('aria-expanded','false');
-                } else {
-                    dropdown.removeAttribute('hidden');
-                    btn.setAttribute('aria-expanded','true');
-                }
-                e.stopPropagation();
-            });
+            btn.addEventListener('click', function(e){
+                const isOpen = !dropdown.hasAttribute('hidden');
+                if (isOpen) {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                } else {
+                    dropdown.removeAttribute('hidden');
+                    btn.setAttribute('aria-expanded','true');
+                }
+                e.stopPropagation();
+            });
 
-            document.addEventListener('click', function(e){
-                if (!wrapper.contains(e.target)) {
-                    dropdown.setAttribute('hidden','');
-                    btn.setAttribute('aria-expanded','false');
-                }
-            });
+            document.addEventListener('click', function(e){
+                if (!wrapper.contains(e.target)) {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                }
+            });
 
-            document.addEventListener('keydown', function(e){
-                if (e.key === 'Escape') {
-                    dropdown.setAttribute('hidden','');
-                    btn.setAttribute('aria-expanded','false');
-                }
-            });
-        })();
-
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape') {
+                    dropdown.setAttribute('hidden','');
+                    btn.setAttribute('aria-expanded','false');
+                }
+            });
+        })();
     </script>
-
 </body>
 </html>
