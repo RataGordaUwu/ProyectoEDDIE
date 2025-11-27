@@ -648,8 +648,8 @@ def firmar_solicitud(id_solicitud):
             datos_carlos = obtener_datos_jefe_usuario(996)
             
             rutas_firmas = {
-                'desarrollo': resolver_ruta_imagen(datos_yareli['ruta_firma']), # Recuperamos la de Yareli
-                'subdireccion': resolver_ruta_imagen(usuario_jefe['ruta_firma']) # Estampamos la de Carlos (Actual)
+                'desarrollo': resolver_ruta_imagen(datos_yareli['ruta_firma']), 
+                'subdireccion': resolver_ruta_imagen(usuario_jefe['ruta_firma']) 
             }
             pdf_buffer = generar_constancia_desempeno(datos_docente, evaluaciones, datos_yareli, datos_carlos, rutas_firmas)
 

@@ -41,7 +41,7 @@
         {% endif %}
     </div>
 
-    <main class="main-content-fixed"> 
+    <main class="main-content-fixed">
         <div class="docs-container">
             
             {% with messages = get_flashed_messages() %}
@@ -57,6 +57,7 @@
 
             
             <div class="docs-list">
+                <h2>Docuemntos de requisitos</h2>
                 
                 <div class="doc-item">
                     <span class="doc-name">Constancia de servicios (RH)</span>
@@ -110,6 +111,10 @@
                     </div>
                 </div>
 
+
+
+                
+
             </div>
 
             <div class="doc-item">
@@ -148,7 +153,7 @@
                         Previsualizar
                     </a>
                     
-                    <form action="{{ url_for('enviar_documento', tipo='constancia_desempeno') }}" method="POST" style="display:inline;">
+                    <form action="{{ url_for('enviar_documento', tipo='constancia_desempeno')}}" method="POST" style="display:inline;">
                         <button type="submit" class="btn-download" onclick="return confirm('Este documento requiere un flujo de doble firma.\n1. Se enviará a Desarrollo Académico.\n2. Al aprobarse, pasará a Subdirección.\n\n¿Desea continuar?');" style="border:none; font-family:inherit;">
                             Iniciar Trámite
                         </button>
@@ -184,6 +189,497 @@
                         </a>
                     </div>
                 </div>
+
+                <h2>Docuemntos de la dedicacion en las actividades en la docencia </h2>
+                <h3>Promocion al aprendizaje</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de la relación de requisitos de inicio</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_participacion_planes') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='constancia_participacion_planes') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de cumplimiento de promocion al aprendizaje</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de acreditación del órgano acreditador de promocion al aprendizaje</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de acreditación del órgano acreditador de promocion al aprendizaje</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            
+            <h2>Apoyo a la docencia</h2>
+            <h3>Elaboracion de material didactico de la asignatura completa, aprobada y utilizado en la academia</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia del trabajo terminado de Proyecto integrador  </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia del trabajo terminado de elaboración de manual de prácticas para planes de estudio 2009 y posteriores. </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de implementación de estrategias didácticas innovadoras en aula por asignatura.</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de participación en el diseño y desarrollo de materiales didácticos</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            <h3>Instructor(a)/facilitador(a) en cursos de formación docente o actualización profesional para profesores(as) del tecnm.</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de Instructor(a)/Facilitador(a) de cursos de formación docente o actualización profesional para Profesores(as) del TecNM impartidos en su mismo tecnológico o en otro tecnológico adscrito al TecNM (con duración mínima de 30 horas).  </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de Instructor(a)/Facilitador(a) de cursos de  formación docente o actualización profesional  impartidos por el TecNM (con duración mínima de 30 horas). </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia Instructor(a) /Facilitador(a) del Diplomado en Pensamiento Crítico para la Educación Tecnológica del TecNM.</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de Instructor(a) del Diplomado para Formación de Tutores para Profesores(as) del TecNM</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión Instructor(a)/Facilitador(a) del Diplomado Recursos Educativos en Ambientes Virtuales para Profesores(as) del TecNM</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión Instructor(a)/Facilitador(a) del Diplomado en Educación Inclusiva para Profesores(as) del TecNM</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión Instructor(a)/Facilitador(a) de Diplomados relacionados con los proyectos estratégicos del TecNM</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+            <h2>Documentos de Asesoría para titulación integral (licenciatura) o dirección de tesis (posgrado)</h2>
+            <h3>Asesor(a) o director(a) o codirector(a) (solo posgrado)</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Copia del documento del libro de actas de examen profesional o de grado</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Acta de examen de grado</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Copia de convenio de colaboración académica, científica y tecnológica</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            <h3>Sinodal para titulación u obtención de grado de estudiantes del tecnm.</h3>
+                <div class="doc-item">
+                    <span class="doc-name">Constancia con folio del acta, fecha del examen, nombre del estudiante y programa educativo, que acredite la realización de esta actividad como Secretario (a) o Vocal (se excluye vocal suplemente). </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+            <h2>Actividades académicas</h2>
+            <h3>Asesoría a estudiantes del tecnm en asignaturas de ciencias básicas.</h3>
+            <div class="doc-item">
+                    <span class="doc-name">Programa de asesoría formalizado por la persona titular del Departamento de Ciencias Básicas y registrado en el Departamento de Desarrollo Académico. </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+            <h3>Asesoría de estudiantes del tecnm en concurso o evento académico de ciencias (enecb-cea, anfei, anfeca, entre otros.)</h3>
+
+
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión por la persona titular del Instituto Tecnológico o Centro de adscripción con el periodo de asesoría </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de la institución organizadora</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia emitida por el Departamento</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <h3>Asesoría de estudiantes del tecnm premiados en concursos o eventos de ciencias (enecb-cea, anfei, anfeca, entre otros.)</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión con el periodo de asesoría</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia emitida por el Departamento</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <h3>Coordinación y colaboración en concursos o eventos académicos, innovación tecnológica o emprendimiento (innovatecnm, copa de ciencias, robótica, mezclas de concreto, satélites, entre otros.)</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión con el periodo de la coordinación y/o colaboración </span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia de cumplimiento</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                
+                <h3>Participar como jurado en eventos académicos (ciencias, innovación tecnológica, emprendimiento, concursos de tesis, entre otros)</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                                <div class="doc-item">
+                    <span class="doc-name">Constancia</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            <h3>Participación en comités para la evaluación de propuestas de proyectos de investigación o comité de evaluaciones y/o acreditaciones de programas educativos (copaes, abet, conahcyt/secihti, coepes, prodep, entre otros.)</h3>
+                <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='constancia_rh') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <form action="{{ url_for('enviar_documento', tipo='constancia_rh') }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-download" onclick="return confirm('¿Enviar documento a Recursos Humanos para firma?');" style="border:none; font-family:inherit;">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            <h3>Participación en auditorías de sistemas de gestión (sgc, sga, sgig, igualdad laboral, entre otros).</h3>
+
+                            <div class="doc-item">
+                    <span class="doc-name">Oficio de Comisión</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                                            <div class="doc-item">
+                    <span class="doc-name">Constancia</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+            <h3>Desarrollo curricular Licenciatura y posgrado</h3>
+
+                <div class="doc-item">
+                    <span class="doc-name">Constancia con el periodo de la participación</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                                <div class="doc-item">
+                    <span class="doc-name">Constancia por la persona titular del Instituto</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                                                <div class="doc-item">
+                    <span class="doc-name">Constancia de la DDIE o DPII del TecNM.</span>
+                    <div class="doc-buttons">
+                        <a href="{{ url_for('ver_documento', tipo='carta_exclusividad') }}" target="_blank" class="btn-preview">
+                            Previsualizar
+                        </a>
+                        <a href="{{ url_for('descargar_documento', tipo='carta_exclusividad') }}" class="btn-download">
+                            Descargar
+                        </a>
+                    </div>
+                </div>
+
+                
 
             </div>
 
