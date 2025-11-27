@@ -184,6 +184,12 @@ body {
 
 
 
+.main-header {
+    position: fixed;   /* <-- esto hace que se quede arriba */
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
 
 .main-content-fixed {
     margin-left: 250px;       
